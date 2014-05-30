@@ -500,18 +500,17 @@ MachOObjectFile::getSymbolFileOffset(DataRefImpl Symb,
   nlist_base Entry = getSymbolTableEntryBase(this, Symb);
   getSymbolAddress(Symb, Res);
   if (Entry.n_sect) {
-    uint64_t Delta;
     DataRefImpl SecRel;
     SecRel.d.a = Entry.n_sect-1;
     if (is64Bit()) {
       MachO::section_64 Sec = getSection64(SecRel);
-      Delta = Sec.offset - Sec.addr;
+      Res += Sec.offset;
+      Res -= Sec.addr;
     } else {
       MachO::section Sec = getSection(SecRel);
-      Delta = Sec.offset - Sec.addr;
+      Res += Sec.offset;
+      Res -= Sec.addr;
     }
-
-    Res += Delta;
   }
 
   return object_error::success;
