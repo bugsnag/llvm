@@ -220,6 +220,12 @@ void SwapStruct(MachO::data_in_code_entry &C) {
   SwapValue(C.kind);
 }
 
+template<>
+void SwapStruct(MachO::uuid_command &C) {
+  SwapValue(C.cmd);
+  SwapValue(C.cmdsize);
+}
+
 template<typename T>
 T getStruct(const MachOObjectFile *O, const char *P) {
   T Cmd;
@@ -423,7 +429,7 @@ MachOObjectFile::MachOObjectFile(MemoryBuffer *Object,
                                  bool IsLittleEndian, bool Is64bits,
                                  error_code &ec)
     : ObjectFile(getMachOType(IsLittleEndian, Is64bits), Object),
-      SymtabLoadCmd(NULL), DysymtabLoadCmd(NULL), DataInCodeLoadCmd(NULL) {
+      SymtabLoadCmd(NULL), DysymtabLoadCmd(NULL), DataInCodeLoadCmd(NULL), UUIDLoadCmd(NULL) {
   uint32_t LoadCommandCount = this->getHeader().ncmds;
   MachO::LoadCommandType SegmentLoadType = is64Bit() ?
     MachO::LC_SEGMENT_64 : MachO::LC_SEGMENT;
@@ -439,6 +445,9 @@ MachOObjectFile::MachOObjectFile(MemoryBuffer *Object,
     } else if (Load.C.cmd == MachO::LC_DATA_IN_CODE) {
       assert(!DataInCodeLoadCmd && "Multiple data in code tables");
       DataInCodeLoadCmd = Load.Ptr;
+    } else if (Load.C.cmd == MachO::LC_UUID) {
+      assert(!UUIDLoadCmd && "Multiple uuids");
+      UUIDLoadCmd = Load.Ptr;
     } else if (Load.C.cmd == SegmentLoadType) {
       uint32_t NumSections = getSegmentLoadCommandNumSections(this, Load);
       for (unsigned J = 0; J < NumSections; ++J) {
@@ -1300,6 +1309,15 @@ unsigned MachOObjectFile::getArch() const {
   return getArch(getCPUType(this));
 }
 
+error_code MachOObjectFile::getUUID(StringRef &Res) const {
+  if (UUIDLoadCmd && getUUIDLoadCommand().cmdsize == 24) {
+    Res = StringRef(UUIDLoadCmd + offsetof(MachO::uuid_command, uuid), 16);
+    return object_error::success;
+  }
+  Res = NULL;
+  return object_error::parse_failed;
+}
+
 StringRef MachOObjectFile::getLoadName() const {
   // TODO: Implement
   report_fatal_error("get_load_name() unimplemented in MachOObjectFile");
@@ -1543,8 +1561,11 @@ MachO::dysymtab_command MachOObjectFile::getDysymtabLoadCommand() const {
   return getStruct<MachO::dysymtab_command>(this, DysymtabLoadCmd);
 }
 
-MachO::linkedit_data_command
-MachOObjectFile::getDataInCodeLoadCommand() const {
+MachO::uuid_command MachOObjectFile::getUUIDLoadCommand() const {
+  return getStruct<MachO::uuid_command>(this, UUIDLoadCmd);
+}
+
+MachO::linkedit_data_command MachOObjectFile::getDataInCodeLoadCommand() const {
   if (DataInCodeLoadCmd)
     return getStruct<MachO::linkedit_data_command>(this, DataInCodeLoadCmd);
 

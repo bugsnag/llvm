@@ -127,6 +127,7 @@ public:
   virtual unsigned getArch() const;
 
   virtual StringRef getLoadName() const;
+  virtual error_code getUUID(StringRef &Res) const;
 
   relocation_iterator section_rel_begin(unsigned Index) const;
   relocation_iterator section_rel_end(unsigned Index) const;
@@ -192,6 +193,7 @@ public:
   MachO::symtab_command getSymtabLoadCommand() const;
   MachO::dysymtab_command getDysymtabLoadCommand() const;
   MachO::linkedit_data_command getDataInCodeLoadCommand() const;
+  MachO::uuid_command getUUIDLoadCommand() const;
 
   StringRef getStringTableData() const;
   bool is64Bit() const;
@@ -209,6 +211,7 @@ private:
   const char *SymtabLoadCmd;
   const char *DysymtabLoadCmd;
   const char *DataInCodeLoadCmd;
+  const char *UUIDLoadCmd;
 };
 
 /// DiceRef
