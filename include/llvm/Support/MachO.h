@@ -1178,6 +1178,11 @@ namespace llvm {
       sys::swapByteOrder(C.kind);
     }
 
+    inline void swapStruct(uuid_command &C) {
+      sys::swapByteOrder(C.cmd);
+      sys::swapByteOrder(C.cmdsize);
+    }
+
     inline void swapStruct(uint32_t &C) {
       sys::swapByteOrder(C);
     }

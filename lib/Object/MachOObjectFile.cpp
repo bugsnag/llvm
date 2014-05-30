@@ -226,7 +226,7 @@ MachOObjectFile::MachOObjectFile(std::unique_ptr<MemoryBuffer> Object,
                                  std::error_code &EC)
     : ObjectFile(getMachOType(IsLittleEndian, Is64bits), std::move(Object)),
       SymtabLoadCmd(nullptr), DysymtabLoadCmd(nullptr),
-      DataInCodeLoadCmd(nullptr) {
+      DataInCodeLoadCmd(nullptr), UUIDLoadCmd(nullptr) {
   uint32_t LoadCommandCount = this->getHeader().ncmds;
   MachO::LoadCommandType SegmentLoadType = is64Bit() ?
     MachO::LC_SEGMENT_64 : MachO::LC_SEGMENT;
@@ -242,6 +242,9 @@ MachOObjectFile::MachOObjectFile(std::unique_ptr<MemoryBuffer> Object,
     } else if (Load.C.cmd == MachO::LC_DATA_IN_CODE) {
       assert(!DataInCodeLoadCmd && "Multiple data in code tables");
       DataInCodeLoadCmd = Load.Ptr;
+    } else if (Load.C.cmd == MachO::LC_UUID) {
+      assert(!UUIDLoadCmd && "Multiple uuids");
+      UUIDLoadCmd = Load.Ptr;
     } else if (Load.C.cmd == SegmentLoadType) {
       uint32_t NumSections = getSegmentLoadCommandNumSections(this, Load);
       for (unsigned J = 0; J < NumSections; ++J) {
@@ -1419,6 +1422,15 @@ unsigned MachOObjectFile::getArch() const {
   return getArch(getCPUType(this));
 }
 
+std::error_code MachOObjectFile::getUUID(StringRef &Res) const {
+  if (UUIDLoadCmd && getUUIDLoadCommand().cmdsize == 24) {
+    Res = StringRef(UUIDLoadCmd + offsetof(MachO::uuid_command, uuid), 16);
+    return object_error::success;
+  }
+  Res = NULL;
+  return object_error::parse_failed;
+}
+
 StringRef MachOObjectFile::getLoadName() const {
   // TODO: Implement
   report_fatal_error("get_load_name() unimplemented in MachOObjectFile");
@@ -1684,6 +1696,10 @@ MachO::symtab_command MachOObjectFile::getSymtabLoadCommand() const {
 
 MachO::dysymtab_command MachOObjectFile::getDysymtabLoadCommand() const {
   return getStruct<MachO::dysymtab_command>(this, DysymtabLoadCmd);
+}
+
+MachO::uuid_command MachOObjectFile::getUUIDLoadCommand() const {
+  return getStruct<MachO::uuid_command>(this, UUIDLoadCmd);
 }
 
 MachO::linkedit_data_command
