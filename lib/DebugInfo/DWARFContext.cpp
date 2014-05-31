@@ -194,6 +194,15 @@ void DWARFContext::dump(raw_ostream &OS, DIDumpType DumpType) {
     }
 }
 
+StringRef DWARFContext::getCompilationDirectory() {
+
+  if (getNumCompileUnits() > 0) {
+    return StringRef(getCompileUnitAtIndex(0)->getCompilationDir());
+  } else {
+    return "";
+  }
+}
+
 const DWARFDebugAbbrev *DWARFContext::getDebugAbbrev() {
   if (Abbrev)
     return Abbrev.get();

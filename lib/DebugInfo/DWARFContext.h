@@ -66,6 +66,7 @@ public:
   }
 
   virtual void dump(raw_ostream &OS, DIDumpType DumpType = DIDT_All);
+  virtual StringRef getCompilationDirectory();
 
   /// Get the number of compile units in this context.
   unsigned getNumCompileUnits() {
