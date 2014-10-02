@@ -298,6 +298,9 @@ void DWARFUnit::clearDIEs(bool KeepCUDie) {
 
 void DWARFUnit::collectAddressRanges(DWARFAddressRangesVector &CURanges) {
   // First, check if CU DIE describes address ranges for the unit.
+  if (getCompileUnitDIE() == nullptr)  {
+    return;
+  }
   const auto &CUDIERanges = getCompileUnitDIE()->getAddressRanges(this);
   if (!CUDIERanges.empty()) {
     CURanges.insert(CURanges.end(), CUDIERanges.begin(), CUDIERanges.end());
