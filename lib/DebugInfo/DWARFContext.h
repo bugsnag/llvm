@@ -103,6 +103,7 @@ public:
     parseDWOTypeUnits();
     return tu_iterator_range(DWOTUs.begin(), DWOTUs.end());
   }
+  virtual StringRef getCompilationDirectory();
 
   /// Get the number of compile units in this context.
   unsigned getNumCompileUnits() {
