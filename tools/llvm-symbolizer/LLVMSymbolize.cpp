@@ -150,6 +150,20 @@ DILineInfo ModuleInfo::symbolizeCode(
       LineInfo.FunctionName = FunctionName;
     }
   }
+
+  // HACK:CI This strips projectRoot in the bugsnag-expected manner.
+  // HACK: Upstream doesn't have the getCompilationDirectory() function.
+  std::string FileName = LineInfo.FileName;
+  std::string Prefix = DebugInfoContext->getCompilationDirectory();
+  if (Prefix.back() != '/') {
+    Prefix.push_back('/');
+  }
+
+  if (FileName.length() > Prefix.length() &&
+      FileName.substr(0, Prefix.length()) == Prefix) {
+    LineInfo.FileName = FileName.substr(Prefix.length());
+  }
+
   return LineInfo;
 }
 
