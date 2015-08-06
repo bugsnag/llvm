@@ -96,7 +96,7 @@ void ModuleInfo::addSymbol(const SymbolRef &Symbol, uint64_t SymbolSize,
     // of the function's code, not the descriptor.
     uint64_t OpdOffset = SymbolAddress - OpdAddress;
     uint32_t OpdOffset32 = OpdOffset;
-    if (OpdOffset == OpdOffset32 && 
+    if (OpdOffset == OpdOffset32 &&
         OpdExtractor->isValidOffsetForAddress(OpdOffset32))
       SymbolAddress = OpdExtractor->getAddress(&OpdOffset32);
   }
@@ -142,7 +142,10 @@ DILineInfo ModuleInfo::symbolizeCode(
         ModuleOffset, getDILineInfoSpecifier(Opts));
   }
   // Override function name from symbol table if necessary.
-  if (Opts.PrintFunctions != FunctionNameKind::None && Opts.UseSymbolTable) {
+  // HACK:CI This logic was changed from upstream so that if UseSymbolTable is false, we still look at the symbol table
+  // HACK: when the FunctionName isn't in the DWARF information.
+  // HACK: This only takes affect when -inlining=0
+  if (Opts.PrintFunctions != FunctionNameKind::None && (Opts.UseSymbolTable || LineInfo.FunctionName == "<invalid>")) {
     std::string FunctionName;
     uint64_t Start, Size;
     if (getNameFromSymbolTable(SymbolRef::ST_Function, ModuleOffset,
@@ -371,7 +374,7 @@ ObjectFile *LLVMSymbolizer::lookUpDsymFile(const std::string &ExePath,
       if (!MachDbgObj) continue;
       if (darwinDsymMatchesBinary(MachDbgObj, MachExeObj)) {
         addOwningBinary(std::move(B));
-        return DbgObj; 
+        return DbgObj;
       }
     }
   }
