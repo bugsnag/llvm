@@ -48,13 +48,14 @@ public:
   // it in memory assuming there were no conflicts.
   uint64_t getModulePreferredBase() const override;
 
+  bool getNameFromSymbolTable(object::SymbolRef::Type Type, uint64_t Address,
+                              std::string &Name, uint64_t &Addr,
+                              uint64_t &Size) const;
+
 private:
   bool shouldOverrideWithSymbolTable(FunctionNameKind FNKind,
                                      bool UseSymbolTable) const;
 
-  bool getNameFromSymbolTable(object::SymbolRef::Type Type, uint64_t Address,
-                              std::string &Name, uint64_t &Addr,
-                              uint64_t &Size) const;
   // For big-endian PowerPC64 ELF, OpdAddress is the address of the .opd
   // (function descriptor) section and OpdExtractor refers to its contents.
   std::error_code addSymbol(const object::SymbolRef &Symbol,

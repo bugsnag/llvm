@@ -227,7 +227,7 @@ DILineInfo SymbolizableObjectFile::symbolizeCode(uint64_t ModuleOffset,
         ModuleOffset, getDILineInfoSpecifier(FNKind));
   }
   // Override function name from symbol table if necessary.
-  if (shouldOverrideWithSymbolTable(FNKind, UseSymbolTable)) {
+  if (shouldOverrideWithSymbolTable(FNKind, UseSymbolTable) || LineInfo.FunctionName == "<invalid>") {
     std::string FunctionName;
     uint64_t Start, Size;
     if (getNameFromSymbolTable(SymbolRef::ST_Function, ModuleOffset,
