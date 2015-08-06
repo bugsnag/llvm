@@ -73,6 +73,7 @@ Expected<DILineInfo> LLVMSymbolizer::symbolizeCode(const std::string &ModuleName
                                             Opts.UseSymbolTable);
   if (Opts.Demangle)
     LineInfo.FunctionName = DemangleName(LineInfo.FunctionName, Info);
+
   return LineInfo;
 }
 
