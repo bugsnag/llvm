@@ -126,6 +126,8 @@ public:
 
   virtual void dump(raw_ostream &OS, DIDumpType DumpType = DIDT_All) = 0;
 
+  virtual StringRef getCompilationDirectory() = 0;
+
   virtual DILineInfo getLineInfoForAddress(uint64_t Address,
       DILineInfoSpecifier Specifier = DILineInfoSpecifier()) = 0;
   virtual DILineInfoTable getLineInfoForAddressRange(uint64_t Address,

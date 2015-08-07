@@ -95,6 +95,8 @@ public:
     return tu_section_iterator_range(TUs.begin(), TUs.end());
   }
 
+  virtual StringRef getCompilationDirectory();
+
   /// Get compile units in the DWO context.
   cu_iterator_range dwo_compile_units() {
     parseDWOCompileUnits();

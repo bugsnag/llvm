@@ -75,6 +75,12 @@ DILineInfo PDBContext::getLineInfoForAddress(uint64_t Address,
   return Result;
 }
 
+StringRef PDBContext::getCompilationDirectory() {
+  // We (Bugsnag) are not using PDB symbolication right now
+  // so we can just implement this with a dummy return value.
+  return StringRef();
+}
+
 DILineInfoTable
 PDBContext::getLineInfoForAddressRange(uint64_t Address, uint64_t Size,
                                        DILineInfoSpecifier Specifier) {
