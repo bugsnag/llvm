@@ -253,6 +253,14 @@ void DWARFContext::dump(raw_ostream &OS, DIDumpType DumpType, bool DumpEH,
                      getStringSection(), isLittleEndian());
 }
 
+StringRef DWARFContext::getCompilationDirectory() {
+  if (getNumCompileUnits() > 0) {
+    return StringRef(getCompileUnitAtIndex(0)->getCompilationDir());
+  } else {
+    return StringRef();
+  }
+}
+
 const DWARFUnitIndex &DWARFContext::getCUIndex() {
   if (CUIndex)
     return *CUIndex;

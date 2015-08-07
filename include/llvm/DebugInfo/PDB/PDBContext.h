@@ -44,6 +44,8 @@ namespace pdb {
     void dump(raw_ostream &OS, DIDumpType DumpType = DIDT_All,
               bool DumpEH = false, bool SummarizeTypes = false) override;
 
+    virtual StringRef getCompilationDirectory();
+
     DILineInfo getLineInfoForAddress(
         uint64_t Address,
         DILineInfoSpecifier Specifier = DILineInfoSpecifier()) override;
