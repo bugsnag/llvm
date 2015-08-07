@@ -235,6 +235,7 @@ DILineInfo SymbolizableObjectFile::symbolizeCode(uint64_t ModuleOffset,
       LineInfo.FunctionName = FunctionName;
     }
   }
+    }
   return LineInfo;
 }
 

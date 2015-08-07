@@ -284,6 +284,14 @@ DWARFGdbIndex &DWARFContext::getGdbIndex() {
   return *GdbIndex;
 }
 
+StringRef DWARFContext::getCompilationDirectory() {
+  if (getNumCompileUnits() > 0) {
+    return StringRef(getCompileUnitAtIndex(0)->getCompilationDir());
+  } else {
+    return StringRef();
+  }
+}
+
 const DWARFDebugAbbrev *DWARFContext::getDebugAbbrev() {
   if (Abbrev)
     return Abbrev.get();
