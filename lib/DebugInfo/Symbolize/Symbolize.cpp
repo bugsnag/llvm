@@ -104,7 +104,7 @@ LLVMSymbolizer::symbolizeInlinedCode(const std::string &ModuleName,
     for (int i = 0, n = InlinedContext.getNumberOfFrames(); i < n; i++) {
       auto *Frame = InlinedContext.getMutableFrame(i);
       Frame->ShortFunctionName = DemangleName(Frame->ShortFunctionName, Info);
-      Frame->LinkageFunctionName = DemangleName(Frame->ShortFunctionName, Info);
+      Frame->LinkageFunctionName = DemangleName(Frame->LinkageFunctionName, Info);
       Frame->SymbolTableFunctionName = DemangleName(Frame->SymbolTableFunctionName, Info);
     }
   }
