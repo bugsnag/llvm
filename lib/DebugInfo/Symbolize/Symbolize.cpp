@@ -71,8 +71,11 @@ Expected<DILineInfo> LLVMSymbolizer::symbolizeCode(const std::string &ModuleName
 
   DILineInfo LineInfo = Info->symbolizeCode(ModuleOffset, Opts.PrintFunctions,
                                             Opts.UseSymbolTable);
-  if (Opts.Demangle)
-    LineInfo.FunctionName = DemangleName(LineInfo.FunctionName, Info);
+  if (Opts.Demangle) {
+    LineInfo.ShortFunctionName = DemangleName(LineInfo.ShortFunctionName, Info);
+    LineInfo.LinkageFunctionName = DemangleName(LineInfo.LinkageFunctionName, Info);
+    LineInfo.SymbolTableFunctionName = DemangleName(LineInfo.SymbolTableFunctionName, Info);
+  }
   return LineInfo;
 }
 
@@ -100,7 +103,9 @@ LLVMSymbolizer::symbolizeInlinedCode(const std::string &ModuleName,
   if (Opts.Demangle) {
     for (int i = 0, n = InlinedContext.getNumberOfFrames(); i < n; i++) {
       auto *Frame = InlinedContext.getMutableFrame(i);
-      Frame->FunctionName = DemangleName(Frame->FunctionName, Info);
+      Frame->ShortFunctionName = DemangleName(Frame->ShortFunctionName, Info);
+      Frame->LinkageFunctionName = DemangleName(Frame->ShortFunctionName, Info);
+      Frame->SymbolTableFunctionName = DemangleName(Frame->SymbolTableFunctionName, Info);
     }
   }
   return InlinedContext;

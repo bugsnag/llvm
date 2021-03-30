@@ -181,11 +181,11 @@ int main(int argc, char **argv) {
       continue;
     }
 
+    outs() << "{";
     if (ClPrintAddress) {
-      outs() << "0x";
+      outs() << "\"address\":\"0x";
       outs().write_hex(ModuleOffset);
-      StringRef Delimiter = (ClPrettyPrint == true) ? ": " : "\n";
-      outs() << Delimiter;
+      outs() << "\",";
     }
     if (IsData) {
       auto ResOrErr = Symbolizer.symbolizeData(ModuleName, ModuleOffset);
@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
       auto ResOrErr = Symbolizer.symbolizeCode(ModuleName, ModuleOffset);
       Printer << (error(ResOrErr) ? DILineInfo() : ResOrErr.get());
     }
-    outs() << "\n";
+    outs() << "}\n";
     outs().flush();
   }
 

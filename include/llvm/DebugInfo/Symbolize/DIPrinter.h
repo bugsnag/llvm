@@ -33,6 +33,7 @@ class DIPrinter {
 
   void print(const DILineInfo &Info, bool Inlined);
   void printContext(const std::string &FileName, int64_t Line);
+  std::string escapeJson(const std::string &s);
 
 public:
   DIPrinter(raw_ostream &OS, bool PrintFunctionNames = true,

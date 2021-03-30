@@ -26,6 +26,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 namespace llvm {
 namespace symbolize {
@@ -66,30 +68,40 @@ void DIPrinter::printContext(const std::string &FileName, int64_t Line) {
 }
 
 void DIPrinter::print(const DILineInfo &Info, bool Inlined) {
+  OS << "\"inlined\":" << (Inlined ? "true" : "false") << ",";
   if (PrintFunctionNames) {
-    std::string FunctionName = Info.FunctionName;
-    if (FunctionName == kDILineInfoBadString)
-      FunctionName = kBadString;
+    OS << "\"shortFunctionName\":" << (Info.ShortFunctionName == kDILineInfoBadString ? "null" : "\"" + escapeJson(Info.ShortFunctionName) + "\"") << ",";
+    OS << "\"linkageFunctionName\":" << (Info.LinkageFunctionName == kDILineInfoBadString ? "null" : "\"" + escapeJson(Info.LinkageFunctionName) + "\"") << ",";
+    OS << "\"symbolTableFunctionName\":" << (Info.SymbolTableFunctionName == kDILineInfoBadString ? "null" : "\"" + escapeJson(Info.SymbolTableFunctionName) + "\"") << ",";
+  }
+  OS << "\"fileName\":\"" << escapeJson(Info.FileName) << "\",";
+  OS << "\"startLine\":" << (Info.StartLine ? std::to_string(Info.StartLine) : "null") << ",";
+  OS << "\"line\":" << std::to_string(Info.Line) << ",";
+  OS << "\"column\":" << std::to_string(Info.Column) << ",";
+  OS << "\"discriminator\":" << (Info.Discriminator ? std::to_string(Info.Discriminator) : "null");
+}
 
-    StringRef Delimiter = PrintPretty ? " at " : "\n";
-    StringRef Prefix = (PrintPretty && Inlined) ? " (inlined by) " : "";
-    OS << Prefix << FunctionName << Delimiter;
-  }
-  std::string Filename = Info.FileName;
-  if (Filename == kDILineInfoBadString)
-    Filename = kBadString;
-  if (!Verbose) {
-    OS << Filename << ":" << Info.Line << ":" << Info.Column << "\n";
-    printContext(Filename, Info.Line);
-    return;
-  }
-  OS << "  Filename: " << Filename << "\n";
-  if (Info.StartLine)
-    OS << "Function start line: " << Info.StartLine << "\n";
-  OS << "  Line: " << Info.Line << "\n";
-  OS << "  Column: " << Info.Column << "\n";
-  if (Info.Discriminator)
-    OS << "  Discriminator: " << Info.Discriminator << "\n";
+std::string DIPrinter::escapeJson(const std::string &s) {
+    std::ostringstream o;
+    for (auto c = s.cbegin(); c != s.cend(); c++) {
+        switch (*c) {
+        case '"': o << "\\\""; break;
+        case '\\': o << "\\\\"; break;
+        case '\b': o << "\\b"; break;
+        case '\f': o << "\\f"; break;
+        case '\n': o << "\\n"; break;
+        case '\r': o << "\\r"; break;
+        case '\t': o << "\\t"; break;
+        default:
+            if ('\x00' <= *c && *c <= '\x1f') {
+                o << "\\u"
+                  << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
+            } else {
+                o << *c;
+            }
+        }
+    }
+    return o.str();
 }
 
 DIPrinter &DIPrinter::operator<<(const DILineInfo &Info) {
@@ -109,11 +121,9 @@ DIPrinter &DIPrinter::operator<<(const DIInliningInfo &Info) {
 }
 
 DIPrinter &DIPrinter::operator<<(const DIGlobal &Global) {
-  std::string Name = Global.Name;
-  if (Name == kDILineInfoBadString)
-    Name = kBadString;
-  OS << Name << "\n";
-  OS << Global.Start << " " << Global.Size << "\n";
+  OS << "\"name\":" << (Global.Name == kDILineInfoBadString ? "null" : "\"" + escapeJson(Global.Name) + "\"") << ",";
+  OS << "\"start\":" << std::to_string(Global.Start) << ",";
+  OS << "\"size\":" << std::to_string(Global.Size);
   return *this;
 }
 
