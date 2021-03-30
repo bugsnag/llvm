@@ -57,7 +57,7 @@ namespace pdb {
         DILineInfoSpecifier Specifier = DILineInfoSpecifier()) override;
 
   private:
-    std::string getFunctionName(uint64_t Address, DINameKind NameKind) const;
+    void getFunctionName(uint64_t Address, DINameKind NameKind, std::string &ShortFunctionName, std::string &LinkageFunctionName) const;
     std::unique_ptr<IPDBSession> Session;
   };
 

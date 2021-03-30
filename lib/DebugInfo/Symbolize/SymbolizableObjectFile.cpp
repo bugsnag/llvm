@@ -225,24 +225,9 @@ DILineInfo SymbolizableObjectFile::symbolizeCode(uint64_t ModuleOffset,
   if (DebugInfoContext) {
     LineInfo = DebugInfoContext->getLineInfoForAddress(
         ModuleOffset, getDILineInfoSpecifier(FNKind));
-  }
 
-  // Override function name from symbol table if necessary.
-  // HACK:CI This logic was changed from upstream so that if UseSymbolTable is false, we still look at the symbol table
-  // HACK: when the FunctionName isn't in the DWARF information.
-  // HACK: This only takes affect when -inlining=0
-  if (shouldOverrideWithSymbolTable(FNKind, UseSymbolTable) || LineInfo.FunctionName == "<invalid>") {
-    std::string FunctionName;
-    uint64_t Start, Size;
-    if (getNameFromSymbolTable(SymbolRef::ST_Function, ModuleOffset,
-                               FunctionName, Start, Size)) {
-      LineInfo.FunctionName = FunctionName;
-    }
-  }
-
-  // HACK:CI This strips projectRoot in the bugsnag-expected manner.
-  // HACK: Upstream doesn't have the getCompilationDirectory() function.
-  if (DebugInfoContext) {
+    // HACK: This strips projectRoot in the bugsnag-expected manner.
+    // HACK: Upstream doesn't have the getCompilationDirectory() function.
     std::string FileName = LineInfo.FileName;
     std::string Prefix = DebugInfoContext->getCompilationDirectory();
     if (Prefix.back() != '/') {
@@ -253,6 +238,14 @@ DILineInfo SymbolizableObjectFile::symbolizeCode(uint64_t ModuleOffset,
         FileName.substr(0, Prefix.length()) == Prefix) {
       LineInfo.FileName = FileName.substr(Prefix.length());
     }
+  }
+
+  // HACK: Always provide symbol table function name
+  std::string SymbolTableFunctionName;
+  uint64_t Start, Size;
+  if (getNameFromSymbolTable(SymbolRef::ST_Function, ModuleOffset,
+                             SymbolTableFunctionName, Start, Size)) {
+    LineInfo.SymbolTableFunctionName = SymbolTableFunctionName;
   }
 
   return LineInfo;
@@ -269,15 +262,13 @@ DIInliningInfo SymbolizableObjectFile::symbolizeInlinedCode(
   if (InlinedContext.getNumberOfFrames() == 0)
     InlinedContext.addFrame(DILineInfo());
 
-  // Override the function name in lower frame with name from symbol table.
-  if (shouldOverrideWithSymbolTable(FNKind, UseSymbolTable)) {
-    std::string FunctionName;
-    uint64_t Start, Size;
-    if (getNameFromSymbolTable(SymbolRef::ST_Function, ModuleOffset,
-                               FunctionName, Start, Size)) {
-      InlinedContext.getMutableFrame(InlinedContext.getNumberOfFrames() - 1)
-          ->FunctionName = FunctionName;
-    }
+  // HACK: Always provide symbol table function name
+  std::string SymbolTableFunctionName;
+  uint64_t Start, Size;
+  if (getNameFromSymbolTable(SymbolRef::ST_Function, ModuleOffset,
+                             SymbolTableFunctionName, Start, Size)) {
+    InlinedContext.getMutableFrame(InlinedContext.getNumberOfFrames() - 1)
+        ->SymbolTableFunctionName = SymbolTableFunctionName;
   }
 
   return InlinedContext;

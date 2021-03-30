@@ -31,7 +31,9 @@ class raw_ostream;
 /// DILineInfo - a format-neutral container for source line information.
 struct DILineInfo {
   std::string FileName;
-  std::string FunctionName;
+  std::string ShortFunctionName;
+  std::string LinkageFunctionName;
+  std::string SymbolTableFunctionName;
   uint32_t Line = 0;
   uint32_t Column = 0;
   uint32_t StartLine = 0;
@@ -39,20 +41,25 @@ struct DILineInfo {
   // DWARF-specific.
   uint32_t Discriminator = 0;
 
-  DILineInfo() : FileName("<invalid>"), FunctionName("<invalid>") {}
+  DILineInfo() : FileName("<invalid>"), ShortFunctionName("<invalid>"),
+    LinkageFunctionName("<invalid>"), SymbolTableFunctionName("<invalid>") {}
 
   bool operator==(const DILineInfo &RHS) const {
     return Line == RHS.Line && Column == RHS.Column &&
-           FileName == RHS.FileName && FunctionName == RHS.FunctionName &&
+           FileName == RHS.FileName && ShortFunctionName == RHS.ShortFunctionName &&
+           LinkageFunctionName == RHS.LinkageFunctionName &&
+           SymbolTableFunctionName == RHS.SymbolTableFunctionName &&
            StartLine == RHS.StartLine && Discriminator == RHS.Discriminator;
   }
   bool operator!=(const DILineInfo &RHS) const {
     return !(*this == RHS);
   }
   bool operator<(const DILineInfo &RHS) const {
-    return std::tie(FileName, FunctionName, Line, Column, StartLine,
+    return std::tie(FileName, ShortFunctionName, LinkageFunctionName,
+                    SymbolTableFunctionName, Line, Column, StartLine,
                     Discriminator) <
-           std::tie(RHS.FileName, RHS.FunctionName, RHS.Line, RHS.Column,
+           std::tie(RHS.FileName, RHS.ShortFunctionName, RHS.LinkageFunctionName,
+                    RHS.SymbolTableFunctionName, RHS.Line, RHS.Column,
                     RHS.StartLine, RHS.Discriminator);
   }
 };
