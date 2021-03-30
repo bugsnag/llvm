@@ -74,7 +74,7 @@ void DIPrinter::print(const DILineInfo &Info, bool Inlined) {
     OS << "\"linkageFunctionName\":" << (Info.LinkageFunctionName == kDILineInfoBadString ? "null" : "\"" + escapeJson(Info.LinkageFunctionName) + "\"") << ",";
     OS << "\"symbolTableFunctionName\":" << (Info.SymbolTableFunctionName == kDILineInfoBadString ? "null" : "\"" + escapeJson(Info.SymbolTableFunctionName) + "\"") << ",";
   }
-  OS << "\"fileName\":\"" << escapeJson(Info.FileName) << "\",";
+  OS << "\"fileName\":" << (Info.FileName == kDILineInfoBadString ? "null" : "\"" + escapeJson(Info.FileName) + "\"") << ",";
   OS << "\"startLine\":" << (Info.StartLine ? std::to_string(Info.StartLine) : "null") << ",";
   OS << "\"line\":" << std::to_string(Info.Line) << ",";
   OS << "\"column\":" << std::to_string(Info.Column) << ",";
