@@ -135,7 +135,7 @@ typedef struct WrappedDebugInformationData {
   const char* pstrErr;
 } WrappedDebugInformationData;
 
-WrappedDebugInformationData BugsnagSymbolicationTest(const char* file_path, bool includeInline, int64_t addresses[], int addressCount);
+WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount);
 
 #ifdef __cplusplus
 }

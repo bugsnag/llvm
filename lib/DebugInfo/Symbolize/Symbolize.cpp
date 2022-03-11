@@ -544,7 +544,7 @@ DebugInformationData getDebugInformationData(const DILineInfo &info, int64_t add
   return result;
 }
  
-WrappedDebugInformationData BugsnagSymbolicationTest(const char* file_path, bool includeInline, int64_t addresses[], int addressCount) {
+WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount) {
   symbolize::DIPrinter Printer(outs(), true, true, true, true);
 
   symbolize::LLVMSymbolizer::Options Opts(symbolize::FunctionNameKind::LinkageName, true, true, false, "");
@@ -552,7 +552,7 @@ WrappedDebugInformationData BugsnagSymbolicationTest(const char* file_path, bool
 
   WrappedDebugInformationData retVal = {{0}};
 
-  std::string moduleName(file_path);
+  std::string moduleName(filePath);
   std::vector<DebugInformationData> results;
 
   for (int i = 0; i < addressCount; i++) {
