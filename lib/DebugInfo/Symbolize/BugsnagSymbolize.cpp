@@ -1,5 +1,4 @@
 #include "llvm/DebugInfo/Symbolize/BugsnagSymbolize.h"
-#include "llvm/DebugInfo/Symbolize/DIPrinter.h"
 #include "llvm/DebugInfo/Symbolize/Symbolize.h"
 #include <cstdlib>
 #include <cstring>
@@ -45,8 +44,6 @@ DebugInformationData getDebugInformationData(const DILineInfo &info, int64_t add
 }
 
 WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount) {
-  symbolize::DIPrinter Printer(outs(), true, true, true, true);
-
   symbolize::LLVMSymbolizer::Options Opts(symbolize::FunctionNameKind::LinkageName, true, true, false, "");
   symbolize::LLVMSymbolizer Symbolizer(Opts);
 
@@ -65,19 +62,11 @@ WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeI
           results.push_back(result);
         }
       }
-
-      Printer << (error(ResOrErr) ? DIInliningInfo() : ResOrErr.get());
-      outs() << "\n";
-      outs().flush();
     } else {
       auto ResOrErr = Symbolizer.symbolizeCode(moduleName, addresses[i]);
       if (ResOrErr) {
         DebugInformationData result = getDebugInformationData(ResOrErr.get(), addresses[i], false);
         results.push_back(result);
-
-        Printer << (error(ResOrErr) ? DILineInfo() : ResOrErr.get());
-        outs() << "\n";
-        outs().flush();
       }
     }
   }
