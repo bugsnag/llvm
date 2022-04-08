@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-typedef struct DebugInformationData {
+typedef struct SymbolizeResult {
   int64_t address;
   bool inlined;
   char* fileName;
@@ -15,15 +15,14 @@ typedef struct DebugInformationData {
   int line;
   int column;
   int startLine;
-} DebugInformationData;
+} SymbolizeResult;
 
-typedef struct WrappedDebugInformationData {
+typedef struct SymbolizeResults {
   int resultCount;
-  DebugInformationData* results;
-  const char* pstrErr;
-} WrappedDebugInformationData;
+  SymbolizeResult* results;
+} SymbolizeResults;
 
-WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount);
+SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount);
 
 #ifdef __cplusplus
 }

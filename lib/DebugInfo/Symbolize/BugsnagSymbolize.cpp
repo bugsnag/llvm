@@ -5,17 +5,8 @@
 
 using namespace llvm;
 
-template<typename T>
-static bool error(Expected<T> &ResOrErr) {
-  if (ResOrErr)
-    return false;
-  logAllUnhandledErrors(ResOrErr.takeError(), errs(),
-                        "LLVMSymbolizer: error reading file: ");
-  return true;
-}
-
-DebugInformationData getDebugInformationData(const DILineInfo &info, int64_t address, bool inlined) {
-  DebugInformationData result = {{0}};
+SymbolizeResult getSymbolizeResult(const DILineInfo &info, int64_t address, bool inlined) {
+  SymbolizeResult result = {{0}};
 
   result.address = address;
   result.inlined = inlined;
@@ -43,14 +34,14 @@ DebugInformationData getDebugInformationData(const DILineInfo &info, int64_t add
   return result;
 }
 
-WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount) {
+SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount) {
   symbolize::LLVMSymbolizer::Options Opts(symbolize::FunctionNameKind::LinkageName, true, true, false, "");
   symbolize::LLVMSymbolizer Symbolizer(Opts);
 
-  WrappedDebugInformationData retVal = {{0}};
+  SymbolizeResults retVal = {{0}};
 
   std::string moduleName(filePath);
-  std::vector<DebugInformationData> results;
+  std::vector<SymbolizeResult> results;
 
   for (int i = 0; i < addressCount; i++) {
     auto ResOrErr = Symbolizer.symbolizeCode(moduleName, addresses[i]);
@@ -58,21 +49,21 @@ WrappedDebugInformationData BugsnagSymbolize(const char* filePath, bool includeI
       auto ResOrErr = Symbolizer.symbolizeInlinedCode(moduleName, addresses[i]);
       if (ResOrErr) {
         for (int j = 0; j < ResOrErr.get().getNumberOfFrames(); j++) {
-          DebugInformationData result = getDebugInformationData(ResOrErr.get().getFrame(j), addresses[i], (j == 0) ? false: true);
+          SymbolizeResult result = getSymbolizeResult(ResOrErr.get().getFrame(j), addresses[i], (j == 0) ? false: true);
           results.push_back(result);
         }
       }
     } else {
       auto ResOrErr = Symbolizer.symbolizeCode(moduleName, addresses[i]);
       if (ResOrErr) {
-        DebugInformationData result = getDebugInformationData(ResOrErr.get(), addresses[i], false);
+        SymbolizeResult result = getSymbolizeResult(ResOrErr.get(), addresses[i], false);
         results.push_back(result);
       }
     }
   }
 
   retVal.resultCount = results.size();
-  retVal.results = new DebugInformationData[results.size()];
+  retVal.results = new SymbolizeResult[results.size()];
   std::copy(results.begin(), results.end(), retVal.results);
 
   return retVal;
