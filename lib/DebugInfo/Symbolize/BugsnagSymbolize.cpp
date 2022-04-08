@@ -5,6 +5,30 @@
 
 using namespace llvm;
 
+static void freeAndInvalidate(void** p) {
+  free((void*)*p);
+  *p = nullptr;
+}
+
+static void destroySymbolizeResult(SymbolizeResult* symbolizeResult) {
+  if (!symbolizeResult) {
+    return;
+  }
+  freeAndInvalidate((void**)&symbolizeResult->fileName);
+  freeAndInvalidate((void**)&symbolizeResult->shortFunctionName);
+  freeAndInvalidate((void**)&symbolizeResult->linkageFunctionName);
+  freeAndInvalidate((void**)&symbolizeResult->symbolTableFunctionName);
+}
+
+static void destroySymbolizeResults(SymbolizeResults* symbolizeResults) {
+  if (!symbolizeResults) {
+    return;
+  }
+  for (int i = 0; i < symbolizeResults->resultCount; i++) {
+    destroySymbolizeResult(&symbolizeResults->results[i]);
+  }
+}
+
 SymbolizeResult getSymbolizeResult(const DILineInfo &info, int64_t address, bool inlined) {
   SymbolizeResult result = {{0}};
 
@@ -67,4 +91,10 @@ SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int6
   std::copy(results.begin(), results.end(), retVal.results);
 
   return retVal;
+}
+
+void DestroySymbolizeResults(SymbolizeResults* symbolizeResults) {
+  if (symbolizeResults) {
+    destroySymbolizeResults(symbolizeResults);
+  }
 }
