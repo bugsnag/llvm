@@ -30,7 +30,7 @@ static void destroySymbolizeResults(SymbolizeResults* symbolizeResults) {
 }
 
 SymbolizeResult getSymbolizeResult(const DILineInfo &info, int64_t address, bool inlined) {
-  SymbolizeResult result = {{0}};
+  SymbolizeResult result = {0};
 
   result.address = address;
   result.inlined = inlined;
@@ -62,7 +62,7 @@ SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int6
   symbolize::LLVMSymbolizer::Options Opts(symbolize::FunctionNameKind::LinkageName, true, true, false, "");
   symbolize::LLVMSymbolizer Symbolizer(Opts);
 
-  SymbolizeResults retVal = {{0}};
+  SymbolizeResults retVal = {0};
 
   std::string moduleName(filePath);
   std::vector<SymbolizeResult> results;
