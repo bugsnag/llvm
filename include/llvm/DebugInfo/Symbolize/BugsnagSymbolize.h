@@ -22,7 +22,7 @@ typedef struct SymbolizeResults {
   SymbolizeResult* results;
 } SymbolizeResults;
 
-SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount);
+SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, char* addresses[], int addressCount);
 void DestroySymbolizeResults(SymbolizeResults* symbolizeResults);
 
 #ifdef __cplusplus

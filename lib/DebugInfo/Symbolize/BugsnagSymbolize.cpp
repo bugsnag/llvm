@@ -14,6 +14,7 @@ static void destroySymbolizeResult(SymbolizeResult* symbolizeResult) {
   if (!symbolizeResult) {
     return;
   }
+  freeAndInvalidate((void**)&symbolizeResult->address);
   freeAndInvalidate((void**)&symbolizeResult->fileName);
   freeAndInvalidate((void**)&symbolizeResult->shortFunctionName);
   freeAndInvalidate((void**)&symbolizeResult->linkageFunctionName);
