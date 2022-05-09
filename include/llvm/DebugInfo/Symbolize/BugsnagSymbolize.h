@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 typedef struct SymbolizeResult {
-  int64_t address;
+  char* address;
   bool inlined;
   char* fileName;
   char* shortFunctionName;

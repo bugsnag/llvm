@@ -29,7 +29,7 @@ static void destroySymbolizeResults(SymbolizeResults* symbolizeResults) {
   }
 }
 
-SymbolizeResult getSymbolizeResult(const DILineInfo &info, int64_t address, bool inlined) {
+SymbolizeResult getSymbolizeResult(const DILineInfo &info, char* address, bool inlined) {
   SymbolizeResult result = {0};
 
   result.address = address;
@@ -58,7 +58,7 @@ SymbolizeResult getSymbolizeResult(const DILineInfo &info, int64_t address, bool
   return result;
 }
 
-SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount) {
+SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, char* addresses[], int addressCount) {
   symbolize::LLVMSymbolizer::Options Opts(symbolize::FunctionNameKind::LinkageName, true, true, false, "");
   symbolize::LLVMSymbolizer Symbolizer(Opts);
 
@@ -68,9 +68,10 @@ SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int6
   std::vector<SymbolizeResult> results;
 
   for (int i = 0; i < addressCount; i++) {
-    auto ResOrErr = Symbolizer.symbolizeCode(moduleName, addresses[i]);
+    int64_t numericAddress = strtol(addresses[i], NULL, 0);
+    auto ResOrErr = Symbolizer.symbolizeCode(moduleName, numericAddress);
     if (includeInline) {
-      auto ResOrErr = Symbolizer.symbolizeInlinedCode(moduleName, addresses[i]);
+      auto ResOrErr = Symbolizer.symbolizeInlinedCode(moduleName, numericAddress);
       if (ResOrErr) {
         for (int j = 0; j < ResOrErr.get().getNumberOfFrames(); j++) {
           SymbolizeResult result = getSymbolizeResult(ResOrErr.get().getFrame(j), addresses[i], (j == 0) ? false: true);
@@ -78,7 +79,7 @@ SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int6
         }
       }
     } else {
-      auto ResOrErr = Symbolizer.symbolizeCode(moduleName, addresses[i]);
+      auto ResOrErr = Symbolizer.symbolizeCode(moduleName, numericAddress);
       if (ResOrErr) {
         SymbolizeResult result = getSymbolizeResult(ResOrErr.get(), addresses[i], false);
         results.push_back(result);
