@@ -15,6 +15,7 @@ typedef struct SymbolizeResult {
   int line;
   int column;
   int startLine;
+  bool badAddress;
 } SymbolizeResult;
 
 typedef struct SymbolizeResults {

@@ -30,13 +30,16 @@ static void destroySymbolizeResults(SymbolizeResults* symbolizeResults) {
   }
 }
 
-SymbolizeResult getSymbolizeResult(const DILineInfo &info, char* address, bool inlined) {
+SymbolizeResult getSymbolizeResult(const DILineInfo &info, std::string address, bool inlined, bool badAddress) {
   SymbolizeResult result = {0};
-
-  result.address = address;
   result.inlined = inlined;
+  result.badAddress = badAddress;
 
-  unsigned int len = std::strlen(info.FileName.c_str());
+  unsigned int len = std::strlen(address.c_str());
+  result.address = new char[len];
+  std::strcpy(result.address, address.c_str());
+  
+  len = std::strlen(info.FileName.c_str());
   result.fileName = new char[len];
   std::strcpy(result.fileName, info.FileName.c_str());
 
@@ -69,20 +72,23 @@ SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, char
   std::vector<SymbolizeResult> results;
 
   for (int i = 0; i < addressCount; i++) {
-    int64_t numericAddress = strtol(addresses[i], NULL, 0);
+    std::string stringAddress = addresses[i];
+    char* addressErr;
+    int64_t numericAddress = (int64_t)std::strtoul(stringAddress.c_str(), &addressErr, 16);
     auto ResOrErr = Symbolizer.symbolizeCode(moduleName, numericAddress);
+
     if (includeInline) {
       auto ResOrErr = Symbolizer.symbolizeInlinedCode(moduleName, numericAddress);
       if (ResOrErr) {
         for (int j = 0; j < ResOrErr.get().getNumberOfFrames(); j++) {
-          SymbolizeResult result = getSymbolizeResult(ResOrErr.get().getFrame(j), addresses[i], (j == 0) ? false: true);
+          SymbolizeResult result = getSymbolizeResult(ResOrErr.get().getFrame(j), stringAddress, (j == 0) ? false: true, (*addressErr == 0) ? false: true);
           results.push_back(result);
         }
       }
     } else {
       auto ResOrErr = Symbolizer.symbolizeCode(moduleName, numericAddress);
       if (ResOrErr) {
-        SymbolizeResult result = getSymbolizeResult(ResOrErr.get(), addresses[i], false);
+        SymbolizeResult result = getSymbolizeResult(ResOrErr.get(), stringAddress, false, (*addressErr == 0) ? false: true);
         results.push_back(result);
       }
     }
