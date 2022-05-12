@@ -72,23 +72,22 @@ SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, char
   std::vector<SymbolizeResult> results;
 
   for (int i = 0; i < addressCount; i++) {
-    std::string stringAddress = addresses[i];
+    std::string hexAddress = addresses[i];
     char* addressErr;
-    int64_t numericAddress = (int64_t)std::strtoul(stringAddress.c_str(), &addressErr, 16);
-    auto ResOrErr = Symbolizer.symbolizeCode(moduleName, numericAddress);
+    int64_t numericAddress = (int64_t)std::strtoul(hexAddress.c_str(), &addressErr, 16);
 
     if (includeInline) {
       auto ResOrErr = Symbolizer.symbolizeInlinedCode(moduleName, numericAddress);
       if (ResOrErr) {
         for (int j = 0; j < ResOrErr.get().getNumberOfFrames(); j++) {
-          SymbolizeResult result = getSymbolizeResult(ResOrErr.get().getFrame(j), stringAddress, (j == 0) ? false: true, (*addressErr == 0) ? false: true);
+          SymbolizeResult result = getSymbolizeResult(ResOrErr.get().getFrame(j), hexAddress, (j == 0) ? false: true, *addressErr != 0);
           results.push_back(result);
         }
       }
     } else {
       auto ResOrErr = Symbolizer.symbolizeCode(moduleName, numericAddress);
       if (ResOrErr) {
-        SymbolizeResult result = getSymbolizeResult(ResOrErr.get(), stringAddress, false, (*addressErr == 0) ? false: true);
+        SymbolizeResult result = getSymbolizeResult(ResOrErr.get(), hexAddress, false, *addressErr != 0);
         results.push_back(result);
       }
     }
