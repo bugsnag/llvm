@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 typedef struct SymbolizeResult {
-  int64_t address;
+  char* address;
   bool inlined;
   char* fileName;
   char* shortFunctionName;
@@ -15,6 +15,7 @@ typedef struct SymbolizeResult {
   int line;
   int column;
   int startLine;
+  bool badAddress;
 } SymbolizeResult;
 
 typedef struct SymbolizeResults {
@@ -22,7 +23,7 @@ typedef struct SymbolizeResults {
   SymbolizeResult* results;
 } SymbolizeResults;
 
-SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, int64_t addresses[], int addressCount);
+SymbolizeResults BugsnagSymbolize(const char* filePath, bool includeInline, char* addresses[], int addressCount);
 void DestroySymbolizeResults(SymbolizeResults* symbolizeResults);
 
 #ifdef __cplusplus
