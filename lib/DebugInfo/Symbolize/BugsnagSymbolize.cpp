@@ -5,20 +5,19 @@
 
 using namespace llvm;
 
-static void freeAndInvalidate(void** p) {
-  free((void*)*p);
-  *p = nullptr;
+static void freeAndInvalidate(void* p) {
+  delete(p);
 }
 
 static void destroySymbolizeResult(SymbolizeResult* symbolizeResult) {
   if (!symbolizeResult) {
     return;
   }
-  freeAndInvalidate((void**)&symbolizeResult->address);
-  freeAndInvalidate((void**)&symbolizeResult->fileName);
-  freeAndInvalidate((void**)&symbolizeResult->shortFunctionName);
-  freeAndInvalidate((void**)&symbolizeResult->linkageFunctionName);
-  freeAndInvalidate((void**)&symbolizeResult->symbolTableFunctionName);
+  freeAndInvalidate((void*)symbolizeResult->address);
+  freeAndInvalidate((void*)symbolizeResult->fileName);
+  freeAndInvalidate((void*)symbolizeResult->shortFunctionName);
+  freeAndInvalidate((void*)symbolizeResult->linkageFunctionName);
+  freeAndInvalidate((void*)symbolizeResult->symbolTableFunctionName);
 }
 
 static void destroySymbolizeResults(SymbolizeResults* symbolizeResults) {
