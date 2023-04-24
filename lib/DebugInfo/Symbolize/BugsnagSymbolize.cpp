@@ -35,24 +35,19 @@ SymbolizeResult getSymbolizeResult(const DILineInfo &info, std::string address, 
   result.inlined = inlined;
   result.badAddress = badAddress;
 
-  unsigned int len = std::strlen(address.c_str());
-  result.address = new char[len];
+  result.address = new char[std::strlen(address.c_str()) + 1];
   std::strcpy(result.address, address.c_str());
   
-  len = std::strlen(info.FileName.c_str());
-  result.fileName = new char[len];
+  result.fileName = new char[std::strlen(info.FileName.c_str()) + 1];
   std::strcpy(result.fileName, info.FileName.c_str());
 
-  len = std::strlen(info.ShortFunctionName.c_str());
-  result.shortFunctionName = new char[len];
+  result.shortFunctionName = new char[std::strlen(info.ShortFunctionName.c_str()) + 1];
   std::strcpy(result.shortFunctionName, info.ShortFunctionName.c_str());
 
-  len = std::strlen(info.LinkageFunctionName.c_str());
-  result.linkageFunctionName = new char[len];
+  result.linkageFunctionName = new char[std::strlen(info.LinkageFunctionName.c_str()) + 1];
   std::strcpy(result.linkageFunctionName, info.LinkageFunctionName.c_str());
 
-  len = std::strlen(info.SymbolTableFunctionName.c_str());
-  result.symbolTableFunctionName = new char[len];
+  result.symbolTableFunctionName = new char[std::strlen(info.SymbolTableFunctionName.c_str()) + 1];
   std::strcpy(result.symbolTableFunctionName, info.SymbolTableFunctionName.c_str());
 
   result.line = info.Line;
