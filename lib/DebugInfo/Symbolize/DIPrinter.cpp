@@ -115,8 +115,17 @@ DIPrinter &DIPrinter::operator<<(const DIInliningInfo &Info) {
     print(DILineInfo(), false);
     return *this;
   }
-  for (uint32_t i = 0; i < FramesNum; i++)
+  for (uint32_t i = 0; i < FramesNum; i++) {
+    if (i == 0) {
+      OS << "{";
+    } else {
+      OS << ",{";
+    }
+    
     print(Info.getFrame(i), i > 0);
+    OS << "}";
+  }
+
   return *this;
 }
 
