@@ -267,7 +267,7 @@ DIInliningInfo SymbolizableObjectFile::symbolizeInlinedCode(
         Prefix.push_back('/');
       }
 
-      for (int i=0; i<InlinedContext.getNumberOfFrames()-1; i++) {
+      for (int i=0; i<InlinedContext.getNumberOfFrames(); i++) {
         DILineInfo* FrameLineInfo = InlinedContext.getMutableFrame(i);
         if(FrameLineInfo) {
           std::string FileName = FrameLineInfo->FileName;
