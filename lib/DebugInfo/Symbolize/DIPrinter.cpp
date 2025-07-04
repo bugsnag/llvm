@@ -112,7 +112,9 @@ DIPrinter &DIPrinter::operator<<(const DILineInfo &Info) {
 DIPrinter &DIPrinter::operator<<(const DIInliningInfo &Info) {
   uint32_t FramesNum = Info.getNumberOfFrames();
   if (FramesNum == 0) {
+    OS << "{";
     print(DILineInfo(), false);
+    OS << "}";
     return *this;
   }
   for (uint32_t i = 0; i < FramesNum; i++) {

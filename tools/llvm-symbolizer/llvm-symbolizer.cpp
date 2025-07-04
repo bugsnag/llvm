@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
       auto ResOrErr = Symbolizer.symbolizeData(ModuleName, ModuleOffset);
       Printer << (error(ResOrErr) ? DIGlobal() : ResOrErr.get());
     } else if (ClPrintInlining) {
-      outs() << "\"inlinedFrames\":[";
+      outs() << "\"frames\":[";
       auto ResOrErr = Symbolizer.symbolizeInlinedCode(ModuleName, ModuleOffset);
       Printer << (error(ResOrErr) ? DIInliningInfo()
                                              : ResOrErr.get());
