@@ -255,9 +255,32 @@ DIInliningInfo SymbolizableObjectFile::symbolizeInlinedCode(
     uint64_t ModuleOffset, FunctionNameKind FNKind, bool UseSymbolTable) const {
   DIInliningInfo InlinedContext;
 
-  if (DebugInfoContext)
+  if (DebugInfoContext){
     InlinedContext = DebugInfoContext->getInliningInfoForAddress(
         ModuleOffset, getDILineInfoSpecifier(FNKind));
+
+    // HACK: This strips projectRoot in the bugsnag-expected manner (on all frames).
+    // HACK: Upstream doesn't have the getCompilationDirectory() function.
+    if (InlinedContext.getNumberOfFrames() != 0) {
+      std::string Prefix = DebugInfoContext->getCompilationDirectory();
+      if (Prefix.back() != '/') {
+        Prefix.push_back('/');
+      }
+
+      for (int i=0; i<InlinedContext.getNumberOfFrames()-1; i++) {
+        DILineInfo* FrameLineInfo = InlinedContext.getMutableFrame(i);
+        if(FrameLineInfo) {
+          std::string FileName = FrameLineInfo->FileName;
+        
+          if (FileName.length() > Prefix.length() &&
+            FileName.substr(0, Prefix.length()) == Prefix) {
+            FrameLineInfo->FileName = FileName.substr(Prefix.length());
+          }
+        }
+      }
+    }
+  }
+  
   // Make sure there is at least one frame in context.
   if (InlinedContext.getNumberOfFrames() == 0)
     InlinedContext.addFrame(DILineInfo());
