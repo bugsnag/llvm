@@ -263,7 +263,7 @@ DIInliningInfo SymbolizableObjectFile::symbolizeInlinedCode(
     // HACK: Upstream doesn't have the getCompilationDirectory() function.
     if (InlinedContext.getNumberOfFrames() != 0) {
       std::string Prefix = DebugInfoContext->getCompilationDirectory();
-      if (Prefix.back() != '/') {
+      if (!Prefix.empty() && Prefix.back() != '/') {
         Prefix.push_back('/');
       }
 
