@@ -112,11 +112,25 @@ DIPrinter &DIPrinter::operator<<(const DILineInfo &Info) {
 DIPrinter &DIPrinter::operator<<(const DIInliningInfo &Info) {
   uint32_t FramesNum = Info.getNumberOfFrames();
   if (FramesNum == 0) {
+    OS << "{";
     print(DILineInfo(), false);
+    OS << "}";
     return *this;
   }
-  for (uint32_t i = 0; i < FramesNum; i++)
-    print(Info.getFrame(i), i > 0);
+  
+  bool inlined = false;
+  for (uint32_t i = 0; i < FramesNum; i++) {
+    if (inlined) {
+      OS << ",";
+    }
+    
+    OS << "{";
+    print(Info.getFrame(i), inlined);
+    OS << "}";
+
+    inlined = true;
+  }
+
   return *this;
 }
 
