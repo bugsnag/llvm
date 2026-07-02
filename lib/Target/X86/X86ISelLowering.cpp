@@ -4696,7 +4696,7 @@ static void scaleShuffleMask(int Scale, ArrayRef<int> Mask,
                              SmallVectorImpl<int> &ScaledMask) {
   assert(0 < Scale && "Unexpected scaling factor");
   int NumElts = Mask.size();
-  ScaledMask.assign(NumElts * Scale, -1);
+  ScaledMask.assign((size_t)NumElts * Scale, -1);
 
   for (int i = 0; i != NumElts; ++i) {
     int M = Mask[i];
@@ -7840,7 +7840,7 @@ static SDValue LowerCONCAT_VECTORSvXi1(SDValue Op,
     if (NumOfDefinedOps == 1) {
       unsigned SubVecNumElts =
         Op.getOperand(OpIdx).getValueType().getVectorNumElements();
-      SDValue IdxVal = DAG.getIntPtrConstant(SubVecNumElts * OpIdx, dl);
+      SDValue IdxVal = DAG.getIntPtrConstant((uint64_t)SubVecNumElts * OpIdx, dl);
       return DAG.getNode(ISD::INSERT_SUBVECTOR, dl, ResVT, Undef,
                          Op.getOperand(OpIdx), IdxVal);
     }
@@ -9664,7 +9664,7 @@ static SDValue lowerVectorShuffleAsTruncBroadcast(const SDLoc &DL, MVT VT,
   // vpbroadcast+vmovd+shr to vpshufb(m)+vmovd.
   if (const int OffsetIdx = BroadcastIdx % Scale)
     Scalar = DAG.getNode(ISD::SRL, DL, Scalar.getValueType(), Scalar,
-            DAG.getConstant(OffsetIdx * EltSize, DL, Scalar.getValueType()));
+            DAG.getConstant((uint64_t)OffsetIdx * EltSize, DL, Scalar.getValueType()));
 
   return DAG.getNode(X86ISD::VBROADCAST, DL, VT,
                      DAG.getNode(ISD::TRUNCATE, DL, EltVT, Scalar));
@@ -18140,9 +18140,9 @@ static SDValue LowerExtendedLoad(SDValue Op, const X86Subtarget &Subtarget,
   }
 
   // Redistribute the loaded elements into the different locations.
-  SmallVector<int, 16> ShuffleVec(NumElems * SizeRatio, -1);
+  SmallVector<int, 16> ShuffleVec((size_t)NumElems * SizeRatio, -1);
   for (unsigned i = 0; i != NumElems; ++i)
-    ShuffleVec[i * SizeRatio] = i;
+    ShuffleVec[(size_t)i * SizeRatio] = i;
 
   SDValue Shuff = DAG.getVectorShuffle(WideVecVT, dl, SlicedVec,
                                        DAG.getUNDEF(WideVecVT), ShuffleVec);
@@ -26496,7 +26496,7 @@ static bool matchUnaryVectorShuffle(MVT MaskVT, ArrayRef<int> Mask,
       bool Match = true;
       unsigned NumDstElts = NumMaskElts / Scale;
       for (unsigned i = 0; i != NumDstElts && Match; ++i) {
-        Match &= isUndefOrEqual(Mask[i * Scale], (int)i);
+        Match &= isUndefOrEqual(Mask[(size_t)i * Scale], (int)i);
         Match &= isUndefOrZeroInRange(Mask, (i * Scale) + 1, Scale - 1);
       }
       if (Match) {
@@ -29165,7 +29165,7 @@ static SDValue combineExtractVectorElt(SDNode *N, SelectionDAG &DAG,
 
     // Replace each use (extract) with a load of the appropriate element.
     for (unsigned i = 0; i < 4; ++i) {
-      uint64_t Offset = EltSize * i;
+      uint64_t Offset = (uint64_t)EltSize * i;
       auto PtrVT = TLI.getPointerTy(DAG.getDataLayout());
       SDValue OffsetVal = DAG.getConstant(Offset, dl, PtrVT);
 
@@ -32153,9 +32153,9 @@ static SDValue combineMaskedLoad(SDNode *N, SelectionDAG &DAG,
   // Convert Src0 value.
   SDValue WideSrc0 = DAG.getBitcast(WideVecVT, Mld->getSrc0());
   if (!Mld->getSrc0().isUndef()) {
-    SmallVector<int, 16> ShuffleVec(NumElems * SizeRatio, -1);
+    SmallVector<int, 16> ShuffleVec((size_t)NumElems * SizeRatio, -1);
     for (unsigned i = 0; i != NumElems; ++i)
-      ShuffleVec[i] = i * SizeRatio;
+      ShuffleVec[i] = (size_t)i * SizeRatio;
 
     // Can't shuffle using an illegal type.
     assert(DAG.getTargetLoweringInfo().isTypeLegal(WideVecVT) &&
@@ -32169,9 +32169,9 @@ static SDValue combineMaskedLoad(SDNode *N, SelectionDAG &DAG,
   if (Mask.getValueType() == VT) {
     // Mask and original value have the same type.
     NewMask = DAG.getBitcast(WideVecVT, Mask);
-    SmallVector<int, 16> ShuffleVec(NumElems * SizeRatio, -1);
+    SmallVector<int, 16> ShuffleVec((size_t)NumElems * SizeRatio, -1);
     for (unsigned i = 0; i != NumElems; ++i)
-      ShuffleVec[i] = i * SizeRatio;
+      ShuffleVec[i] = (size_t)i * SizeRatio;
     for (unsigned i = NumElems; i != NumElems * SizeRatio; ++i)
       ShuffleVec[i] = NumElems * SizeRatio;
     NewMask = DAG.getVectorShuffle(WideVecVT, dl, NewMask,
@@ -32276,9 +32276,9 @@ static SDValue combineMaskedStore(SDNode *N, SelectionDAG &DAG,
   assert(WideVecVT.getSizeInBits() == VT.getSizeInBits());
 
   SDValue WideVec = DAG.getBitcast(WideVecVT, Mst->getValue());
-  SmallVector<int, 16> ShuffleVec(NumElems * SizeRatio, -1);
+  SmallVector<int, 16> ShuffleVec((size_t)NumElems * SizeRatio, -1);
   for (unsigned i = 0; i != NumElems; ++i)
-    ShuffleVec[i] = i * SizeRatio;
+    ShuffleVec[i] = (size_t)i * SizeRatio;
 
   // Can't shuffle using an illegal type.
   assert(DAG.getTargetLoweringInfo().isTypeLegal(WideVecVT) &&
@@ -32408,9 +32408,9 @@ static SDValue combineStore(SDNode *N, SelectionDAG &DAG,
     assert(WideVecVT.getSizeInBits() == VT.getSizeInBits());
 
     SDValue WideVec = DAG.getBitcast(WideVecVT, St->getValue());
-    SmallVector<int, 8> ShuffleVec(NumElems * SizeRatio, -1);
+    SmallVector<int, 8> ShuffleVec((size_t)NumElems * SizeRatio, -1);
     for (unsigned i = 0; i != NumElems; ++i)
-      ShuffleVec[i] = i * SizeRatio;
+      ShuffleVec[i] = (size_t)i * SizeRatio;
 
     // Can't shuffle using an illegal type.
     if (!TLI.isTypeLegal(WideVecVT))
@@ -32949,7 +32949,7 @@ static SDValue combineVectorTruncation(SDNode *N, SelectionDAG &DAG,
 
   for (unsigned i = 0; i < RegNum; i++)
     SubVec[i] = DAG.getNode(ISD::EXTRACT_SUBVECTOR, DL, SubRegVT, In,
-                            DAG.getIntPtrConstant(i * NumSubRegElts, DL));
+                            DAG.getIntPtrConstant((uint64_t)i * NumSubRegElts, DL));
 
   // SSE2 provides PACKUS for only 2 x v8i16 -> v16i8 and SSE4.1 provides PACKUS
   // for 2 x v4i32 -> v8i16. For SSSE3 and below, we need to use PACKSS to
