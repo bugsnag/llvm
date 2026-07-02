@@ -340,9 +340,9 @@ static void PrintIndirectSymbolTable(MachOObjectFile *O, bool verbose,
     outs() << "\n";
   for (uint32_t j = 0; j < count && n + j < nindirectsyms; j++) {
     if (cputype & MachO::CPU_ARCH_ABI64)
-      outs() << format("0x%016" PRIx64, addr + j * stride) << " ";
+      outs() << format("0x%016" PRIx64, addr + (uint64_t)j * stride) << " ";
     else
-      outs() << format("0x%08" PRIx32, (uint32_t)addr + j * stride) << " ";
+      outs() << format("0x%08" PRIx32, (uint32_t)(addr + (uint64_t)j * stride)) << " ";
     MachO::dysymtab_command Dysymtab = O->getDysymtabLoadCommand();
     uint32_t indirect_symbol = O->getIndirectSymbolTableEntry(Dysymtab, n + j);
     if (indirect_symbol == MachO::INDIRECT_SYMBOL_LOCAL) {
@@ -937,7 +937,7 @@ static void DumpInitTermPointerSection(MachOObjectFile *O, const char *sect,
   for (uint32_t i = 0; i < sect_size; i += stride) {
     const char *SymbolName = nullptr;
     if (O->is64Bit()) {
-      outs() << format("0x%016" PRIx64, sect_addr + i * stride) << " ";
+      outs() << format("0x%016" PRIx64, sect_addr + (uint64_t)i * stride) << " ";
       uint64_t pointer_value;
       memcpy(&pointer_value, sect + i, stride);
       if (O->isLittleEndian() != sys::IsLittleEndianHost)
@@ -946,7 +946,7 @@ static void DumpInitTermPointerSection(MachOObjectFile *O, const char *sect,
       if (verbose)
         SymbolName = GuessSymbolName(pointer_value, AddrMap);
     } else {
-      outs() << format("0x%08" PRIx64, sect_addr + i * stride) << " ";
+      outs() << format("0x%08" PRIx64, sect_addr + (uint64_t)i * stride) << " ";
       uint32_t pointer_value;
       memcpy(&pointer_value, sect + i, stride);
       if (O->isLittleEndian() != sys::IsLittleEndianHost)
@@ -7055,7 +7055,7 @@ printMachOCompactUnwindSection(const MachOObjectFile *Obj,
     uint64_t RelocAddress = Reloc.getOffset();
 
     uint32_t EntryIdx = RelocAddress / EntrySize;
-    uint32_t OffsetInEntry = RelocAddress - EntryIdx * EntrySize;
+    uint32_t OffsetInEntry = RelocAddress - (uint64_t)EntryIdx * EntrySize;
     CompactUnwindEntry &Entry = CompactUnwinds[EntryIdx];
 
     if (OffsetInEntry == 0)
