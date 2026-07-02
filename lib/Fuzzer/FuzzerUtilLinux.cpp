@@ -41,11 +41,6 @@ int ExecuteCommand(const std::string &Command) {
     
     // Check for output redirection pattern: " > filename"
     if (C == '>' && !Escaping && Current.empty()) {
-      // Skip whitespace before '>'
-      size_t Start = I;
-      while (Start > 0 && isspace(static_cast<unsigned char>(Command[Start - 1])))
-        Start--;
-      
       // Skip whitespace after '>'
       I++;
       while (I < Command.size() && isspace(static_cast<unsigned char>(Command[I])))
