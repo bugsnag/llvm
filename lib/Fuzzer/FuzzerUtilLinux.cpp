@@ -43,12 +43,12 @@ int ExecuteCommand(const std::string &Command) {
     if (C == '>' && !Escaping && Current.empty()) {
       // Skip whitespace before '>'
       size_t Start = I;
-      while (Start > 0 && isspace(Command[Start - 1]))
+      while (Start > 0 && isspace(static_cast<unsigned char>(Command[Start - 1])))
         Start--;
       
       // Skip whitespace after '>'
       I++;
-      while (I < Command.size() && isspace(Command[I]))
+      while (I < Command.size() && isspace(static_cast<unsigned char>(Command[I])))
         I++;
       
       // Parse the output filename
@@ -59,7 +59,7 @@ int ExecuteCommand(const std::string &Command) {
         if (isspace(UC)) {
           // Check if this is followed by "2>&1"
           size_t J = I;
-          while (J < Command.size() && isspace(Command[J]))
+          while (J < Command.size() && isspace(static_cast<unsigned char>(Command[J])))
             J++;
           
           if (J + 4 <= Command.size() && 
@@ -138,7 +138,8 @@ int ExecuteCommand(const std::string &Command) {
   if (Pid == 0) {
     // Handle output redirection in the child process
     if (!OutputFile.empty()) {
-      int Fd = open(OutputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      // Use restrictive permissions (owner read/write only) for security
+      int Fd = open(OutputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
       if (Fd < 0)
         _exit(127);
       
@@ -168,7 +169,13 @@ int ExecuteCommand(const std::string &Command) {
     if (errno != EINTR)
       return -1;
   }
-  return Status;
+  
+  // Return the actual exit code if the process terminated normally
+  if (WIFEXITED(Status))
+    return WEXITSTATUS(Status);
+  
+  // Return -1 for abnormal termination (signals, etc.)
+  return -1;
 }
 
 } // namespace fuzzer
