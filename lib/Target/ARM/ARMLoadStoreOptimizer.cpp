@@ -473,7 +473,7 @@ void ARMLoadStoreOpt::UpdateBaseRegUses(MachineBasicBlock &MBB,
         MachineOperand &MO =
           MBBI->getOperand(MBBI->getDesc().getNumOperands() - 3);
         // The offsets are scaled by 1, 2 or 4 depending on the Opcode.
-        Offset = MO.getImm() - WordOffset * getImmScale(Opc);
+        Offset = MO.getImm() - (int64_t)WordOffset * getImmScale(Opc);
 
         // If storing the base register, it needs to be reset first.
         unsigned InstrSrcReg = getLoadStoreRegOp(*MBBI).getReg();
@@ -491,8 +491,8 @@ void ARMLoadStoreOpt::UpdateBaseRegUses(MachineBasicBlock &MBB,
         MachineOperand &MO =
           MBBI->getOperand(MBBI->getDesc().getNumOperands() - 3);
         Offset = (Opc == ARM::tSUBi8) ?
-          MO.getImm() + WordOffset * 4 :
-          MO.getImm() - WordOffset * 4 ;
+          MO.getImm() + (int64_t)WordOffset * 4 :
+          MO.getImm() - (int64_t)WordOffset * 4 ;
         if (Offset >= 0 && TL->isLegalAddImmediate(Offset)) {
           // FIXME: Swap ADDS<->SUBS if Offset < 0, erase instruction if
           // Offset == 0.
