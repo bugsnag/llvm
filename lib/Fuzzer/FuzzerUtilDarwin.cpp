@@ -37,6 +37,9 @@ static sigset_t OldBlockedSignalsSet;
 // thread finishes execution of the function and ensures this is not racey by
 // using a mutex.
 int ExecuteCommand(const std::string &Command) {
+  // Reject commands with shell metacharacters to prevent command injection (CWE-78, CWE-88)
+  if (Command.find_first_of(";|$`<()\\\"'*?[]{}!~\r") != std::string::npos)
+    return -1;
   posix_spawnattr_t SpawnAttributes;
   if (posix_spawnattr_init(&SpawnAttributes))
     return -1;
