@@ -49,7 +49,11 @@ int ExecuteCommand(const std::string &Command) {
   } else {
     // Parent process - wait for child
     int status;
-    if (waitpid(pid, &status, 0) == -1) {
+    pid_t w;
+    do {
+      w = waitpid(pid, &status, 0);
+    } while (w == -1 && errno == EINTR);
+    if (w == -1) {
       return -1;
     }
     return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
