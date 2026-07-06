@@ -11,6 +11,7 @@
 #include "FuzzerDefs.h"
 #if LIBFUZZER_LINUX
 
+#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
