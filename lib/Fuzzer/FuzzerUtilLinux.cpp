@@ -12,14 +12,48 @@
 #if LIBFUZZER_LINUX
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sstream>
+#include <vector>
 
 namespace fuzzer {
-
-int ExecuteCommand(const std::string &Command) {
-  // Reject commands with shell metacharacters to prevent command injection (CWE-78, CWE-88)
-  if (Command.find_first_of(";|$`<()\\\"'*?[]{}!~\r") != std::string::npos)
+int ExecuteCommand(const std::string &Command) {  
+  // Parse command into arguments
+  std::vector<std::string> args;
+  std::istringstream iss(Command);
+  std::string token;
+  while (iss >> token) {
+    args.push_back(token);
+  }
+  
+  if (args.empty()) {
     return -1;
-  return system(Command.c_str());
+  }
+  
+  // Convert to char* array for execvp
+  std::vector<char*> argv;
+  for (auto &arg : args) {
+    argv.push_back(const_cast<char*>(arg.c_str()));
+  }
+  argv.push_back(nullptr);
+  
+  pid_t pid = fork();
+  if (pid == -1) {
+    return -1;
+  } else if (pid == 0) {
+    // Child process - execute command directly (no shell)
+    execvp(argv[0], argv.data());
+    // If execvp returns, it failed
+    _exit(127);
+  } else {
+    // Parent process - wait for child
+    int status;
+    if (waitpid(pid, &status, 0) == -1) {
+      return -1;
+    }
+    return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+  }
 }
 
 } // namespace fuzzer
