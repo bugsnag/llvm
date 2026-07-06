@@ -827,7 +827,9 @@ SDValue DAGTypeLegalizer::PromoteIntRes_VAARG(SDNode *N) {
     SDValue Part = DAG.getNode(ISD::ZERO_EXTEND, dl, NVT, Parts[i]);
     // Shift it to the right position and "or" it in.
     Part = DAG.getNode(ISD::SHL, dl, NVT, Part,
-                       DAG.getConstant(i * RegVT.getSizeInBits(), dl,
+                       DAG.getConstant(static_cast<uint64_t>(i) *
+                                           RegVT.getSizeInBits(),
+                                       dl,
                                        TLI.getPointerTy(DAG.getDataLayout())));
     Res = DAG.getNode(ISD::OR, dl, NVT, Res, Part);
   }
