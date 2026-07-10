@@ -917,7 +917,7 @@ void RecognizableInstr::emitDecodePath(DisassemblerTables &tables) const {
     uint8_t currentOpcode;
 
     for (currentOpcode = opcodeToSet;
-         currentOpcode < opcodeToSet + 8;
+         (unsigned)currentOpcode < (unsigned)opcodeToSet + 8;
          ++currentOpcode)
       tables.setTableFields(opcodeType,
                             insnContext(),
