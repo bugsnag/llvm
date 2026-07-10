@@ -126,6 +126,12 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
     symcov_data = None
     src_path = None
 
+    def resolve_source_path(self, filename):
+        filepath = os.path.realpath(os.path.join(self.src_path, filename))
+        if os.path.commonpath([self.src_path, filepath]) != self.src_path:
+            return None
+        return filepath
+
     def do_GET(self):
         if self.path == '/':
             self.send_response(200)
@@ -148,8 +154,8 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(response.encode('UTF-8', 'replace'))
         elif self.symcov_data.has_file(self.path[1:]):
             filename = self.path[1:]
-            filepath = os.path.join(self.src_path, filename) 
-            if not os.path.exists(filepath):
+            filepath = self.resolve_source_path(filename)
+            if filepath is None or not os.path.exists(filepath):
                 self.send_response(404)
                 self.end_headers()
                 return
@@ -188,7 +194,7 @@ def main():
     print("Loading coverage...")
     symcov_json = json.load(args.symcov)
     ServerHandler.symcov_data = SymcovData(symcov_json)
-    ServerHandler.src_path = args.srcpath
+    ServerHandler.src_path = os.path.realpath(args.srcpath)
 
     socketserver.TCPServer.allow_reuse_address = True
     httpd = socketserver.TCPServer((args.host, args.port), ServerHandler)
