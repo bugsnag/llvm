@@ -124,22 +124,22 @@ public:
 
   /// \brief Construct a PBQP Matrix with the given dimensions.
   Matrix(unsigned Rows, unsigned Cols) :
-    Rows(Rows), Cols(Cols), Data(llvm::make_unique<PBQPNum []>(Rows * Cols)) {
+    Rows(Rows), Cols(Cols), Data(llvm::make_unique<PBQPNum []>((size_t)Rows * Cols)) {
   }
 
   /// \brief Construct a PBQP Matrix with the given dimensions and initial
   /// value.
   Matrix(unsigned Rows, unsigned Cols, PBQPNum InitVal)
     : Rows(Rows), Cols(Cols),
-      Data(llvm::make_unique<PBQPNum []>(Rows * Cols)) {
-    std::fill(Data.get(), Data.get() + (Rows * Cols), InitVal);
+      Data(llvm::make_unique<PBQPNum []>((size_t)Rows * Cols)) {
+    std::fill(Data.get(), Data.get() + ((size_t)Rows * Cols), InitVal);
   }
 
   /// \brief Copy construct a PBQP matrix.
   Matrix(const Matrix &M)
     : Rows(M.Rows), Cols(M.Cols),
-      Data(llvm::make_unique<PBQPNum []>(Rows * Cols)) {
-    std::copy(M.Data.get(), M.Data.get() + (Rows * Cols), Data.get());
+      Data(llvm::make_unique<PBQPNum []>((size_t)Rows * Cols)) {
+    std::copy(M.Data.get(), M.Data.get() + ((size_t)Rows * Cols), Data.get());
   }
 
   /// \brief Move construct a PBQP matrix.
@@ -153,7 +153,7 @@ public:
     assert(Rows != 0 && Cols != 0 && Data && "Invalid matrix");
     if (Rows != M.Rows || Cols != M.Cols)
       return false;
-    return std::equal(Data.get(), Data.get() + (Rows * Cols), M.Data.get());
+    return std::equal(Data.get(), Data.get() + ((size_t)Rows * Cols), M.Data.get());
   }
 
   /// \brief Return the number of rows in this matrix.
@@ -172,14 +172,14 @@ public:
   PBQPNum* operator[](unsigned R) {
     assert(Rows != 0 && Cols != 0 && Data && "Invalid matrix");
     assert(R < Rows && "Row out of bounds.");
-    return Data.get() + (R * Cols);
+    return Data.get() + ((size_t)R * Cols);
   }
 
   /// \brief Matrix element access.
   const PBQPNum* operator[](unsigned R) const {
     assert(Rows != 0 && Cols != 0 && Data && "Invalid matrix");
     assert(R < Rows && "Row out of bounds.");
-    return Data.get() + (R * Cols);
+    return Data.get() + ((size_t)R * Cols);
   }
 
   /// \brief Returns the given row as a vector.
@@ -215,7 +215,7 @@ public:
     assert(Rows != 0 && Cols != 0 && Data && "Invalid matrix");
     assert(Rows == M.Rows && Cols == M.Cols &&
            "Matrix dimensions mismatch.");
-    std::transform(Data.get(), Data.get() + (Rows * Cols), M.Data.get(),
+    std::transform(Data.get(), Data.get() + ((size_t)Rows * Cols), M.Data.get(),
                    Data.get(), std::plus<PBQPNum>());
     return *this;
   }
@@ -236,7 +236,7 @@ private:
 inline hash_code hash_value(const Matrix &M) {
   unsigned *MBegin = reinterpret_cast<unsigned*>(M.Data.get());
   unsigned *MEnd =
-    reinterpret_cast<unsigned*>(M.Data.get() + (M.Rows * M.Cols));
+    reinterpret_cast<unsigned*>(M.Data.get() + ((size_t)M.Rows * M.Cols));
   return hash_combine(M.Rows, M.Cols, hash_combine_range(MBegin, MEnd));
 }
 
