@@ -3398,7 +3398,7 @@ SDValue TargetLowering::scalarizeVectorLoad(LoadSDNode *LD,
     SDValue ScalarLoad =
         DAG.getExtLoad(ExtType, SL, DstEltVT, Chain, BasePTR,
                        LD->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
-                       MinAlign(LD->getAlignment(), (uint64_t)Idx * Stride),
+                       SrcEltVT, MinAlign(LD->getAlignment(), (uint64_t)Idx * Stride),
                        LD->getMemOperand()->getFlags(), LD->getAAInfo());
 
     BasePTR = DAG.getNode(ISD::ADD, SL, PtrVT, BasePTR,
