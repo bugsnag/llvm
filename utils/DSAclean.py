@@ -18,9 +18,10 @@ input = open(sys.argv[1], 'r')
 output = open(sys.argv[2], 'w')
 #we'll get this one line at a time...while we could just put the whole thing in a string
 #it would kill old computers
+LABEL_RE = re.compile(r'label\s*=\s*"\s%tmp[.\w]*\s*"')
 buffer = input.readline()
 while buffer != '':
-	if re.compile("label(\s*)=(\s*)\"\s%tmp(.\w*)*(\s*)\"").search(buffer):
+	if LABEL_RE.search(buffer):
 		#skip next line, write neither this line nor the next
 		buffer = input.readline()
 	else:
