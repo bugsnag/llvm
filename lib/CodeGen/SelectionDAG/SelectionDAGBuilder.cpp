@@ -588,7 +588,7 @@ static void getCopyToPartsVector(SelectionDAG &DAG, const SDLoc &DL,
     if (IntermediateVT.isVector())
       Ops[i] =
           DAG.getNode(ISD::EXTRACT_SUBVECTOR, DL, IntermediateVT, Val,
-                      DAG.getConstant(i * (NumElements / NumIntermediates), DL,
+                      DAG.getConstant((uint64_t)i * (NumElements / NumIntermediates), DL,
                                       TLI.getVectorIdxTy(DAG.getDataLayout())));
     else
       Ops[i] = DAG.getNode(
