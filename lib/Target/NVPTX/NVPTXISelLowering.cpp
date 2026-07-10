@@ -188,7 +188,7 @@ static void ComputePTXValueVTs(const TargetLowering &TLI, const DataLayout &DL,
       for (unsigned j = 0; j != NumElts; ++j) {
         ValueVTs.push_back(EltVT);
         if (Offsets)
-          Offsets->push_back(Off + j * EltVT.getStoreSize());
+          Offsets->push_back(Off + (uint64_t)j * EltVT.getStoreSize());
       }
     } else {
       ValueVTs.push_back(VT);
@@ -229,7 +229,7 @@ static unsigned CanMergeParamLoadStoresStartingAt(
 
   unsigned NumElts = AccessSize / EltSize;
   // Can't vectorize if AccessBytes if not a multiple of EltSize.
-  if (AccessSize != EltSize * NumElts)
+  if (AccessSize != (uint32_t)EltSize * NumElts)
     return 1;
 
   // We don't have enough elements to vectorize.
