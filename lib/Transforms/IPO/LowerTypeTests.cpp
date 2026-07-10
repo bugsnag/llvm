@@ -1136,7 +1136,7 @@ void LowerTypeTestsModule::buildBitSetsFromFunctionsNative(
   DenseMap<GlobalTypeMember *, uint64_t> GlobalLayout;
   unsigned EntrySize = getJumpTableEntrySize();
   for (unsigned I = 0; I != Functions.size(); ++I)
-    GlobalLayout[Functions[I]] = I * EntrySize;
+    GlobalLayout[Functions[I]] = (uint64_t)I * EntrySize;
 
   Function *JumpTableFn =
       Function::Create(FunctionType::get(Type::getVoidTy(M.getContext()),

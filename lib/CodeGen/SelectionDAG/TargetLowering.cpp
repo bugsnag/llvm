@@ -3397,8 +3397,8 @@ SDValue TargetLowering::scalarizeVectorLoad(LoadSDNode *LD,
   for (unsigned Idx = 0; Idx < NumElem; ++Idx) {
     SDValue ScalarLoad =
         DAG.getExtLoad(ExtType, SL, DstEltVT, Chain, BasePTR,
-                       LD->getPointerInfo().getWithOffset(Idx * Stride),
-                       SrcEltVT, MinAlign(LD->getAlignment(), Idx * Stride),
+                       LD->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
+                       MinAlign(LD->getAlignment(), (uint64_t)Idx * Stride),
                        LD->getMemOperand()->getFlags(), LD->getAAInfo());
 
     BasePTR = DAG.getNode(ISD::ADD, SL, PtrVT, BasePTR,
@@ -3448,12 +3448,12 @@ SDValue TargetLowering::scalarizeVectorStore(StoreSDNode *ST,
                               DAG.getConstant(Idx, SL, IdxVT));
 
     SDValue Ptr = DAG.getNode(ISD::ADD, SL, PtrVT, BasePtr,
-                              DAG.getConstant(Idx * Stride, SL, PtrVT));
+                              DAG.getConstant((uint64_t)Idx * Stride, SL, PtrVT));
 
     // This scalar TruncStore may be illegal, but we legalize it later.
     SDValue Store = DAG.getTruncStore(
-        Chain, SL, Elt, Ptr, ST->getPointerInfo().getWithOffset(Idx * Stride),
-        MemSclVT, MinAlign(ST->getAlignment(), Idx * Stride),
+        Chain, SL, Elt, Ptr, ST->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
+        MemSclVT, MinAlign(ST->getAlignment(), (uint64_t)Idx * Stride),
         ST->getMemOperand()->getFlags(), ST->getAAInfo());
 
     Stores.push_back(Store);
