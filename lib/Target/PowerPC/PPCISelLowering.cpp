@@ -8325,13 +8325,13 @@ SDValue PPCTargetLowering::LowerVectorLoad(SDValue Op,
       if (ScalarVT != ScalarMemVT)
         Load = DAG.getExtLoad(LN->getExtensionType(), dl, ScalarVT, LoadChain,
                               BasePtr,
-                              LN->getPointerInfo().getWithOffset(Idx * Stride),
-                              ScalarMemVT, MinAlign(Alignment, Idx * Stride),
+                              LN->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
+                              ScalarMemVT, MinAlign(Alignment, (uint64_t)Idx * Stride),
                               LN->getMemOperand()->getFlags(), LN->getAAInfo());
       else
         Load = DAG.getLoad(ScalarVT, dl, LoadChain, BasePtr,
-                           LN->getPointerInfo().getWithOffset(Idx * Stride),
-                           MinAlign(Alignment, Idx * Stride),
+                           LN->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
+                           MinAlign(Alignment, (uint64_t)Idx * Stride),
                            LN->getMemOperand()->getFlags(), LN->getAAInfo());
 
       if (Idx == 0 && LN->isIndexed()) {
@@ -8417,13 +8417,13 @@ SDValue PPCTargetLowering::LowerVectorStore(SDValue Op,
       if (ScalarVT != ScalarMemVT)
         Store =
             DAG.getTruncStore(StoreChain, dl, Ex, BasePtr,
-                              SN->getPointerInfo().getWithOffset(Idx * Stride),
-                              ScalarMemVT, MinAlign(Alignment, Idx * Stride),
+                              SN->getPointerInfo().getWithOffset( (uint64_t)Idx * Stride),
+                              ScalarMemVT, MinAlign(Alignment,  (uint64_t)Idx * Stride),
                               SN->getMemOperand()->getFlags(), SN->getAAInfo());
       else
         Store = DAG.getStore(StoreChain, dl, Ex, BasePtr,
-                             SN->getPointerInfo().getWithOffset(Idx * Stride),
-                             MinAlign(Alignment, Idx * Stride),
+                             SN->getPointerInfo().getWithOffset( (uint64_t)Idx * Stride),
+                             MinAlign(Alignment,  (uint64_t)Idx * Stride),
                              SN->getMemOperand()->getFlags(), SN->getAAInfo());
 
       if (Idx == 0 && SN->isIndexed()) {
@@ -9995,14 +9995,14 @@ static bool isConsecutiveLSLoc(SDValue Loc, EVT VT, LSBaseSDNode *Base,
     int FS  = MFI.getObjectSize(FI);
     int BFS = MFI.getObjectSize(BFI);
     if (FS != BFS || FS != (int)Bytes) return false;
-    return MFI.getObjectOffset(FI) == (MFI.getObjectOffset(BFI) + Dist*Bytes);
+    return MFI.getObjectOffset(FI) == (MFI.getObjectOffset(BFI) + (uint64_t)Dist*Bytes);
   }
 
   SDValue Base1 = Loc, Base2 = BaseLoc;
   int64_t Offset1 = 0, Offset2 = 0;
   getBaseWithConstantOffset(Loc, Base1, Offset1, DAG);
   getBaseWithConstantOffset(BaseLoc, Base2, Offset2, DAG);
-  if (Base1 == Base2 && Offset1 == (Offset2 + Dist * Bytes))
+  if (Base1 == Base2 && Offset1 == (Offset2 + (uint64_t)Dist * Bytes))
     return true;
 
   const TargetLowering &TLI = DAG.getTargetLoweringInfo();
@@ -10013,7 +10013,7 @@ static bool isConsecutiveLSLoc(SDValue Loc, EVT VT, LSBaseSDNode *Base,
   bool isGA1 = TLI.isGAPlusOffset(Loc.getNode(), GV1, Offset1);
   bool isGA2 = TLI.isGAPlusOffset(BaseLoc.getNode(), GV2, Offset2);
   if (isGA1 && isGA2 && GV1 == GV2)
-    return Offset1 == (Offset2 + Dist*Bytes);
+    return Offset1 == (Offset2 + (uint64_t)Dist*Bytes);
   return false;
 }
 
