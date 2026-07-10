@@ -605,7 +605,7 @@ void AMDGPUAsmPrinter::getSIProgramInfo(SIProgramInfo &ProgInfo,
   }
 
   unsigned LDSSpillSize =
-    MFI->LDSWaveSpillSize * MFI->getMaxFlatWorkGroupSize();
+    (uint64_t)MFI->LDSWaveSpillSize * MFI->getMaxFlatWorkGroupSize();
 
   ProgInfo.LDSSize = MFI->getLDSSize() + LDSSpillSize;
   ProgInfo.LDSBlocks =
@@ -617,7 +617,7 @@ void AMDGPUAsmPrinter::getSIProgramInfo(SIProgramInfo &ProgInfo,
   // is used by the entire wave.  ProgInfo.ScratchSize is the amount of
   // scratch memory used per thread.
   ProgInfo.ScratchBlocks =
-      alignTo(ProgInfo.ScratchSize * STM.getWavefrontSize(),
+      alignTo((uint64_t)ProgInfo.ScratchSize * STM.getWavefrontSize(),
               1ULL << ScratchAlignShift) >>
       ScratchAlignShift;
 
