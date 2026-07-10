@@ -3277,7 +3277,7 @@ Value *InnerLoopVectorizer::getOrCreateVectorTripCount(Loop *L) {
   // iterations are not required for correctness, or N - Step, otherwise. Step
   // is equal to the vectorization factor (number of SIMD elements) times the
   // unroll factor (number of SIMD instructions).
-  Constant *Step = ConstantInt::get(TC->getType(), VF * UF);
+  Constant *Step = ConstantInt::get(TC->getType(), (uint64_t)VF * UF);
   Value *R = Builder.CreateURem(TC, Step, "n.mod.vf");
 
   // If there is a non-reversed interleaved group that may speculatively access
@@ -3306,7 +3306,7 @@ void InnerLoopVectorizer::emitMinimumIterationCountCheck(Loop *L,
   // Generate code to check that the loop's trip count that we computed by
   // adding one to the backedge-taken count will not overflow.
   Value *CheckMinIters = Builder.CreateICmpULT(
-      Count, ConstantInt::get(Count->getType(), VF * UF), "min.iters.check");
+      Count, ConstantInt::get(Count->getType(), (uint64_t)VF * UF), "min.iters.check");
 
   BasicBlock *NewBB =
       BB->splitBasicBlock(BB->getTerminator(), "min.iters.checked");
@@ -3512,7 +3512,7 @@ void InnerLoopVectorizer::createEmptyLoop() {
   // The loop step is equal to the vectorization factor (num of SIMD elements)
   // times the unroll factor (num of SIMD instructions).
   Value *CountRoundDown = getOrCreateVectorTripCount(Lp);
-  Constant *Step = ConstantInt::get(IdxTy, VF * UF);
+  Constant *Step = ConstantInt::get(IdxTy, (uint64_t)VF * UF);
   Induction =
       createInductionVariable(Lp, StartIdx, CountRoundDown, Step,
                               getDebugLocFromInstOrOperands(OldInduction));
