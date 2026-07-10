@@ -3098,7 +3098,7 @@ void SwingSchedulerDAG::updateMemOperands(MachineInstr &NewMI,
     }
     unsigned Delta;
     if (computeDelta(OldMI, Delta)) {
-      int64_t AdjOffset = Delta * Num;
+      int64_t AdjOffset = (int64_t)Delta * Num;
       NewMemRefs[Refs++] =
           MF.getMachineMemOperand(MMO, AdjOffset, MMO->getSize());
     } else
