@@ -193,7 +193,9 @@ void raw_ostream::flush_nonempty() {
   assert(OutBufCur > OutBufStart && "Invalid call to flush_nonempty.");
   size_t Length = OutBufCur - OutBufStart;
   OutBufCur = OutBufStart;
-  write_impl(OutBufStart, Length);
+  if (LLVM_LIKELY(Length > 0)){
+    write_impl(OutBufStart, Length);
+  }
 }
 
 raw_ostream &raw_ostream::write(unsigned char C) {
