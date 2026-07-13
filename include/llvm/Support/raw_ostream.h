@@ -69,6 +69,9 @@ private:
     ExternalBuffer
   } BufferMode;
 
+/// Flag to prevent virtual calls during construction/destruction.
+  bool IsInitialized = false;
+  
 public:
   // color order matches ANSI escape sequence, don't change
   enum Colors {
