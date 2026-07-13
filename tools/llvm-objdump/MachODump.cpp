@@ -343,7 +343,6 @@ static void PrintIndirectSymbolTable(MachOObjectFile *O, bool verbose,
       outs() << format("0x%016" PRIx64, addr + (uint64_t)j * stride) << " ";
     else
       outs() << format("0x%08" PRIx32, (uint32_t)(addr + (uint64_t)j * stride)) << " ";
-    MachO::dysymtab_command Dysymtab = O->getDysymtabLoadCommand();
     uint32_t indirect_symbol = O->getIndirectSymbolTableEntry(Dysymtab, n + j);
     if (indirect_symbol == MachO::INDIRECT_SYMBOL_LOCAL) {
       outs() << "LOCAL\n";
@@ -7055,7 +7054,7 @@ printMachOCompactUnwindSection(const MachOObjectFile *Obj,
     uint64_t RelocAddress = Reloc.getOffset();
 
     uint32_t EntryIdx = RelocAddress / EntrySize;
-    uint32_t OffsetInEntry = RelocAddress - (uint64_t)EntryIdx * EntrySize;
+    uint64_t OffsetInEntry = RelocAddress - (uint64_t)EntryIdx * EntrySize;
     CompactUnwindEntry &Entry = CompactUnwinds[EntryIdx];
 
     if (OffsetInEntry == 0)
