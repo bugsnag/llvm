@@ -126,12 +126,6 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
     symcov_data = None
     src_path = None
 
-    def resolve_source_path(self, filename):
-        filepath = os.path.realpath(os.path.join(self.src_path, filename))
-        if os.path.commonpath([self.src_path, filepath]) != self.src_path:
-            return None
-        return filepath
-
     def do_GET(self):
         if self.path == '/':
             self.send_response(200)
@@ -154,8 +148,14 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(response.encode('UTF-8', 'replace'))
         elif self.symcov_data.has_file(self.path[1:]):
             filename = self.path[1:]
-            filepath = self.resolve_source_path(filename)
-            if filepath is None or not os.path.exists(filepath):
+            filepath = os.path.realpath(os.path.join(self.src_path, filename))
+
+            if not filepath.startswith(os.path.realpath(self.src_path) + os.sep):
+                self.send_response(403)
+                self.end_headers()
+                return
+
+            if not os.path.exists(filepath):
                 self.send_response(404)
                 self.end_headers()
                 return
