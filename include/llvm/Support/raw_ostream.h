@@ -69,7 +69,7 @@ private:
     ExternalBuffer
   } BufferMode;
 
-/// Flag to prevent virtual calls during construction/destruction.
+// Flag to prevent virtual calls during construction/destruction.
   bool IsInitialized = false;
   
 public:
