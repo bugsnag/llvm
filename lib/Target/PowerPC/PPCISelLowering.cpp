@@ -8417,12 +8417,12 @@ SDValue PPCTargetLowering::LowerVectorStore(SDValue Op,
       if (ScalarVT != ScalarMemVT)
         Store =
             DAG.getTruncStore(StoreChain, dl, Ex, BasePtr,
-                              SN->getPointerInfo().getWithOffset( (uint64_t)Idx * Stride),
+                              SN->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
                               ScalarMemVT, MinAlign(Alignment,  (uint64_t)Idx * Stride),
                               SN->getMemOperand()->getFlags(), SN->getAAInfo());
       else
         Store = DAG.getStore(StoreChain, dl, Ex, BasePtr,
-                             SN->getPointerInfo().getWithOffset( (uint64_t)Idx * Stride),
+                             SN->getPointerInfo().getWithOffset((uint64_t)Idx * Stride),
                              MinAlign(Alignment,  (uint64_t)Idx * Stride),
                              SN->getMemOperand()->getFlags(), SN->getAAInfo());
 
