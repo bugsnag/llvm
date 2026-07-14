@@ -641,10 +641,10 @@ bool SIRegisterInfo::spillSGPR(MachineBasicBlock::iterator MI,
 
       unsigned Align = FrameInfo.getObjectAlignment(Index);
       MachinePointerInfo PtrInfo
-        = MachinePointerInfo::getFixedStack(*MF, Index, EltSize * i);
+        = MachinePointerInfo::getFixedStack(*MF, Index, (uint64_t)EltSize * i);
       MachineMemOperand *MMO
         = MF->getMachineMemOperand(PtrInfo, MachineMemOperand::MOStore,
-                                   EltSize, MinAlign(Align, EltSize * i));
+                                   EltSize, MinAlign(Align, (uint64_t)EltSize * i));
 
       // SMEM instructions only support a single offset, so increment the wave
       // offset.
@@ -708,10 +708,10 @@ bool SIRegisterInfo::spillSGPR(MachineBasicBlock::iterator MI,
 
       unsigned Align = FrameInfo.getObjectAlignment(Index);
       MachinePointerInfo PtrInfo
-        = MachinePointerInfo::getFixedStack(*MF, Index, EltSize * i);
+        = MachinePointerInfo::getFixedStack(*MF, Index, (uint64_t)EltSize * i);
       MachineMemOperand *MMO
         = MF->getMachineMemOperand(PtrInfo, MachineMemOperand::MOStore,
-                                   EltSize, MinAlign(Align, EltSize * i));
+                                   EltSize, MinAlign(Align, (uint64_t)EltSize * i));
       BuildMI(*MBB, MI, DL, TII->get(AMDGPU::SI_SPILL_V32_SAVE))
         .addReg(TmpReg, RegState::Kill)         // src
         .addFrameIndex(Index)                   // vaddr
@@ -794,10 +794,10 @@ bool SIRegisterInfo::restoreSGPR(MachineBasicBlock::iterator MI,
       // FIXME: Size may be > 4 but extra bytes wasted.
       unsigned Align = FrameInfo.getObjectAlignment(Index);
       MachinePointerInfo PtrInfo
-        = MachinePointerInfo::getFixedStack(*MF, Index, EltSize * i);
+        = MachinePointerInfo::getFixedStack(*MF, Index, (uint64_t)EltSize * i);
       MachineMemOperand *MMO
         = MF->getMachineMemOperand(PtrInfo, MachineMemOperand::MOLoad,
-                                   EltSize, MinAlign(Align, EltSize * i));
+                                   EltSize, MinAlign(Align, (uint64_t)EltSize * i));
 
       // Add i * 4 offset
       int64_t Offset = (ST.getWavefrontSize() * FrOffset) + (EltSize * i);
@@ -843,11 +843,11 @@ bool SIRegisterInfo::restoreSGPR(MachineBasicBlock::iterator MI,
       unsigned Align = FrameInfo.getObjectAlignment(Index);
 
       MachinePointerInfo PtrInfo
-        = MachinePointerInfo::getFixedStack(*MF, Index, EltSize * i);
+        = MachinePointerInfo::getFixedStack(*MF, Index, (uint64_t)EltSize * i);
 
       MachineMemOperand *MMO = MF->getMachineMemOperand(PtrInfo,
         MachineMemOperand::MOLoad, EltSize,
-        MinAlign(Align, EltSize * i));
+        MinAlign(Align, (uint64_t)EltSize * i));
 
       BuildMI(*MBB, MI, DL, TII->get(AMDGPU::SI_SPILL_V32_RESTORE), TmpReg)
         .addFrameIndex(Index)                   // vaddr

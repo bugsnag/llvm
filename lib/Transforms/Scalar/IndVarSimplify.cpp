@@ -366,8 +366,14 @@ void IndVarSimplify::handleFloatingPointIV(Loop *L, PHINode *PN) {
 
     // If the stride would wrap around the i32 before exiting, we can't
     // transform the IV.
-    if (Leftover != 0 && int32_t(ExitValue+IncValue) < ExitValue)
-      return;
+    if (Leftover != 0) {
+      int64_t Sum = (int64_t)ExitValue + (int64_t)IncValue;
+      // Check if Sum fits in int32_t before comparing
+      if (Sum > INT32_MAX || Sum < INT32_MIN)
+        return;
+      if ((int32_t)Sum < (int32_t)ExitValue)
+        return;
+    }
 
   } else {
     // If we have a negative stride, we require the init to be greater than the
@@ -393,8 +399,14 @@ void IndVarSimplify::handleFloatingPointIV(Loop *L, PHINode *PN) {
 
     // If the stride would wrap around the i32 before exiting, we can't
     // transform the IV.
-    if (Leftover != 0 && int32_t(ExitValue+IncValue) > ExitValue)
-      return;
+    if (Leftover != 0) {
+      int64_t Sum = ExitValue + IncValue;
+      // Check if Sum fits in int32_t before casting
+      if (Sum > INT32_MAX || Sum < INT32_MIN)
+        return;
+      if (int32_t(Sum) > (int32_t)ExitValue)
+        return;
+    }
   }
 
   IntegerType *Int32Ty = Type::getInt32Ty(PN->getContext());

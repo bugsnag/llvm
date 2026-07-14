@@ -200,7 +200,7 @@ void LLVMOutputStyle::discoverStreamPurposes() {
   }
 
   StreamPurposes.resize(StreamCount);
-  for (uint16_t StreamIdx = 0; StreamIdx < StreamCount; ++StreamIdx) {
+  for (uint32_t StreamIdx = 0; StreamIdx < StreamCount; ++StreamIdx) {
     std::string Value;
     if (StreamIdx == OldMSFDirectory)
       Value = "Old MSF Directory";
@@ -294,7 +294,7 @@ Error LLVMOutputStyle::dumpStreamSummary() {
   uint32_t StreamCount = File.getNumStreams();
 
   ListScope L(P, "Streams");
-  for (uint16_t StreamIdx = 0; StreamIdx < StreamCount; ++StreamIdx) {
+  for (uint32_t StreamIdx = 0; StreamIdx < StreamCount; ++StreamIdx) {
     std::string Label("Stream ");
     Label += to_string(StreamIdx);
 

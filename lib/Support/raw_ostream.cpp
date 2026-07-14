@@ -69,6 +69,8 @@
 using namespace llvm;
 
 raw_ostream::~raw_ostream() {
+    // Mark object as destructing to prevent virtual calls
+  IsInitialized = false;
   // raw_ostream's subclasses should take care to flush the buffer
   // in their destructors.
   assert(OutBufCur == OutBufStart &&
@@ -110,6 +112,9 @@ void raw_ostream::SetBufferAndMode(char *BufferStart, size_t Size,
   OutBufEnd = OutBufStart+Size;
   OutBufCur = OutBufStart;
   BufferMode = Mode;
+
+  // Mark as initialized after successful setup
+  IsInitialized = true;
 
   assert(OutBufStart <= OutBufEnd && "Invalid size!");
 }
@@ -193,7 +198,11 @@ void raw_ostream::flush_nonempty() {
   assert(OutBufCur > OutBufStart && "Invalid call to flush_nonempty.");
   size_t Length = OutBufCur - OutBufStart;
   OutBufCur = OutBufStart;
-  write_impl(OutBufStart, Length);
+  // Only call write_impl if object is fully initialized and not destructing.
+  // This prevents pure virtual function calls during construction/destruction.
+  if (LLVM_LIKELY(IsInitialized)) {
+    write_impl(OutBufStart, Length);
+  }
 }
 
 raw_ostream &raw_ostream::write(unsigned char C) {

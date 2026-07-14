@@ -7357,7 +7357,7 @@ bool SelectionDAG::areNonVolatileConsecutiveLoads(LoadSDNode *LD,
     int FS  = MFI.getObjectSize(FI);
     int BFS = MFI.getObjectSize(BFI);
     if (FS != BFS || FS != (int)Bytes) return false;
-    return MFI.getObjectOffset(FI) == (MFI.getObjectOffset(BFI) + Dist*Bytes);
+    return MFI.getObjectOffset(FI) == (MFI.getObjectOffset(BFI) + (uint64_t)Dist*Bytes);
   }
 
   // Handle X + C.
@@ -7366,7 +7366,7 @@ bool SelectionDAG::areNonVolatileConsecutiveLoads(LoadSDNode *LD,
     if (Loc.getOperand(0) == BaseLoc) {
       // If the base location is a simple address with no offset itself, then
       // the second load's first add operand should be the base address.
-      if (LocOffset == Dist * (int)Bytes)
+      if (LocOffset == (uint64_t)Dist * (int)Bytes)
         return true;
     } else if (isBaseWithConstantOffset(BaseLoc)) {
       // The base location itself has an offset, so subtract that value from the
@@ -7374,7 +7374,7 @@ bool SelectionDAG::areNonVolatileConsecutiveLoads(LoadSDNode *LD,
       int64_t BOffset =
         cast<ConstantSDNode>(BaseLoc.getOperand(1))->getSExtValue();
       if (Loc.getOperand(0) == BaseLoc.getOperand(0)) {
-        if ((LocOffset - BOffset) == Dist * (int)Bytes)
+        if ((LocOffset - BOffset) == (uint64_t)Dist * (int)Bytes)
           return true;
       }
     }
@@ -7386,7 +7386,7 @@ bool SelectionDAG::areNonVolatileConsecutiveLoads(LoadSDNode *LD,
   bool isGA1 = TLI->isGAPlusOffset(Loc.getNode(), GV1, Offset1);
   bool isGA2 = TLI->isGAPlusOffset(BaseLoc.getNode(), GV2, Offset2);
   if (isGA1 && isGA2 && GV1 == GV2)
-    return Offset1 == (Offset2 + Dist*Bytes);
+    return Offset1 == (Offset2 + (uint64_t)Dist*Bytes);
   return false;
 }
 

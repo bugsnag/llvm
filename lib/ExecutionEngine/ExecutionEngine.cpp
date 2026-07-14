@@ -357,7 +357,7 @@ void *ArgvArray::reset(LLVMContext &C, ExecutionEngine *EE,
 
     // Endian safe: Array[i] = (PointerTy)Dest;
     EE->StoreValueToMemory(PTOGV(Dest.get()),
-                           (GenericValue*)(&Array[i*PtrSize]), SBytePtr);
+                           (GenericValue*)(&Array[(uint64_t)i*PtrSize]), SBytePtr);
     Values.push_back(std::move(Dest));
   }
 

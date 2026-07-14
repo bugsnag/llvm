@@ -72,7 +72,7 @@ class InputCorpus {
     assert(!U.empty());
     uint8_t Hash[kSHA1NumBytes];
     if (FeatureDebug)
-      Printf("ADD_TO_CORPUS %zd NF %zd\n", Inputs.size(), NumFeatures);
+      Printf("ADD_TO_CORPUS %zu NF %zu\n", Inputs.size(), NumFeatures);
     ComputeSHA1(U.data(), U.size(), Hash);
     Hashes.insert(Sha1ToString(Hash));
     Inputs.push_back(new InputInfo());
@@ -105,7 +105,7 @@ class InputCorpus {
   void PrintStats() {
     for (size_t i = 0; i < Inputs.size(); i++) {
       const auto &II = *Inputs[i];
-      Printf("  [%zd %s]\tsz: %zd\truns: %zd\tsucc: %zd\n", i,
+      Printf("  [%zu %s]\tsz: %zu\truns: %zu\tsucc: %zu\n", i,
              Sha1ToString(II.Sha1).c_str(), II.U.size(),
              II.NumExecutedMutations, II.NumSuccessfullMutations);
     }
@@ -114,12 +114,12 @@ class InputCorpus {
   void PrintFeatureSet() {
     for (size_t i = 0; i < kFeatureSetSize; i++) {
       if(size_t Sz = GetFeature(i))
-        Printf("[%zd: id %zd sz%zd] ", i, SmallestElementPerFeature[i], Sz);
+        Printf("[%zu: id %u sz%zu] ", i, SmallestElementPerFeature[i], Sz);
     }
     Printf("\n\t");
     for (size_t i = 0; i < Inputs.size(); i++)
       if (size_t N = Inputs[i]->NumFeatures)
-        Printf(" %zd=>%zd ", i, N);
+        Printf(" %zu=>%zu ", i, N);
     Printf("\n");
   }
 
@@ -129,7 +129,7 @@ class InputCorpus {
       RemoveFile(DirPlusFile(OutputCorpus, Sha1ToString(II.Sha1)));
     Unit().swap(II.U);
     if (FeatureDebug)
-      Printf("EVICTED %zd\n", Idx);
+      Printf("EVICTED %zu\n", Idx);
   }
 
   bool AddFeature(size_t Idx, uint32_t NewSize, bool Shrink) {
@@ -146,7 +146,7 @@ class InputCorpus {
           DeleteInput(OldIdx);
       }
       if (FeatureDebug)
-        Printf("ADD FEATURE %zd sz %d\n", Idx, NewSize);
+        Printf("ADD FEATURE %zu sz %u\n", Idx, NewSize);
       SmallestElementPerFeature[Idx] = Inputs.size();
       InputSizesPerFeature[Idx] = NewSize;
       CountingFeatures = true;

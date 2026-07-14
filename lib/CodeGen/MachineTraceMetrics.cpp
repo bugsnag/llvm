@@ -71,7 +71,7 @@ bool MachineTraceMetrics::runOnMachineFunction(MachineFunction &Func) {
   Loops = &getAnalysis<MachineLoopInfo>();
   SchedModel.init(ST.getSchedModel(), &ST, TII);
   BlockInfo.resize(MF->getNumBlockIDs());
-  ProcResourceCycles.resize(MF->getNumBlockIDs() *
+  ProcResourceCycles.resize((uint64_t)MF->getNumBlockIDs() *
                             SchedModel.getNumProcResourceKinds());
   return false;
 }
@@ -145,8 +145,8 @@ MachineTraceMetrics::getProcResourceCycles(unsigned MBBNum) const {
   assert(BlockInfo[MBBNum].hasResources() &&
          "getResources() must be called before getProcResourceCycles()");
   unsigned PRKinds = SchedModel.getNumProcResourceKinds();
-  assert((MBBNum+1) * PRKinds <= ProcResourceCycles.size());
-  return makeArrayRef(ProcResourceCycles.data() + MBBNum * PRKinds, PRKinds);
+  assert((uint64_t)(MBBNum+1) * PRKinds <= ProcResourceCycles.size());
+  return makeArrayRef(ProcResourceCycles.data() + (uint64_t)MBBNum * PRKinds, PRKinds);
 }
 
 //===----------------------------------------------------------------------===//
@@ -264,8 +264,8 @@ ArrayRef<unsigned>
 MachineTraceMetrics::Ensemble::
 getProcResourceDepths(unsigned MBBNum) const {
   unsigned PRKinds = MTM.SchedModel.getNumProcResourceKinds();
-  assert((MBBNum+1) * PRKinds <= ProcResourceDepths.size());
-  return makeArrayRef(ProcResourceDepths.data() + MBBNum * PRKinds, PRKinds);
+  assert((uint64_t)(MBBNum+1) * PRKinds <= ProcResourceDepths.size());
+  return makeArrayRef(ProcResourceDepths.data() + (uint64_t)MBBNum * PRKinds, PRKinds);
 }
 
 /// Get an array of processor resource heights for MBB. Indexed by processor
@@ -277,8 +277,8 @@ ArrayRef<unsigned>
 MachineTraceMetrics::Ensemble::
 getProcResourceHeights(unsigned MBBNum) const {
   unsigned PRKinds = MTM.SchedModel.getNumProcResourceKinds();
-  assert((MBBNum+1) * PRKinds <= ProcResourceHeights.size());
-  return makeArrayRef(ProcResourceHeights.data() + MBBNum * PRKinds, PRKinds);
+  assert((uint64_t)(MBBNum+1) * PRKinds <= ProcResourceHeights.size());
+  return makeArrayRef(ProcResourceHeights.data() + (uint64_t)MBBNum * PRKinds, PRKinds);
 }
 
 //===----------------------------------------------------------------------===//

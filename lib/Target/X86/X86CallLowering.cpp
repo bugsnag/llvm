@@ -62,7 +62,7 @@ void X86CallLowering::splitToValueTypes(const ArgInfo &OrigArg,
         ArgInfo{MRI.createGenericVirtualRegister(getLLTForType(*PartTy, DL)),
                 PartTy, OrigArg.Flags};
     SplitArgs.push_back(Info);
-    PerformArgSplit(Info.Reg, PartVT.getSizeInBits() * i);
+    PerformArgSplit(Info.Reg, (uint64_t)PartVT.getSizeInBits() * i);
   }
 }
 

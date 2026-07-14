@@ -113,7 +113,7 @@ Error PDBFileBuilder::commit(StringRef Filename) {
     return ExpectedLayout.takeError();
   auto &Layout = *ExpectedLayout;
 
-  uint64_t Filesize = Layout.SB->BlockSize * Layout.SB->NumBlocks;
+  uint64_t Filesize = (uint64_t)Layout.SB->BlockSize * Layout.SB->NumBlocks;
   auto OutFileOrError = FileOutputBuffer::create(Filename, Filesize);
   if (OutFileOrError.getError())
     return llvm::make_error<pdb::GenericError>(generic_error_code::invalid_path,

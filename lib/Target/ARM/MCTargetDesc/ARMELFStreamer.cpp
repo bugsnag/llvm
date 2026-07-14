@@ -1390,7 +1390,7 @@ void ARMELFStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
   // corresponding push instruction will decrease the $sp by (4 * Count).
   // For the .vsave directive, the corresponding vpush instruction will
   // decrease $sp by (8 * Count).
-  SPOffset -= Count * (IsVector ? 8 : 4);
+  SPOffset -= (int64_t)Count * (IsVector ? 8 : 4);
 
   // Emit the opcode
   FlushPendingOffset();

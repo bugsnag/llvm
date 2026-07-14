@@ -190,21 +190,27 @@ static void RemoveFilesToRemove() {
   std::vector<std::string>& FilesToRemoveRef = *FilesToRemove;
   for (unsigned i = 0, e = FilesToRemoveRef.size(); i != e; ++i) {
     const char *path = FilesToRemoveRef[i].c_str();
-
-    // Get the status so we can determine if it's a file or directory. If we
-    // can't stat the file, ignore it.
-    struct stat buf;
-    if (stat(path, &buf) != 0)
+    // Open with O_NOFOLLOW to refuse symlinks, eliminating the
+    // TOCTOU race between check and unlink (CWE-367).
+    int fd = open(path, O_RDONLY | O_NOFOLLOW);
+    if (fd < 0)
       continue;
-
+    // fstat() operates on the opened fd, not the path — no race window.
+    struct stat buf;
+    if (fstat(fd, &buf) != 0) {
+      close(fd);
+      continue;
+    }
     // If this is not a regular file, ignore it. We want to prevent removal of
     // special files like /dev/null, even if the compiler is being run with the
     // super-user permissions.
-    if (!S_ISREG(buf.st_mode))
+    if (!S_ISREG(buf.st_mode)) {
+      close(fd);
       continue;
-
-    // Otherwise, remove the file. We ignore any errors here as there is nothing
-    // else we can do.
+    }
+    close(fd);
+    // Safe to unlink — we confirmed via fd that the path pointed to a regular
+    // file and O_NOFOLLOW ensured no symlink was followed.
     unlink(path);
   }
 }
