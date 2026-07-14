@@ -7055,8 +7055,7 @@ printMachOCompactUnwindSection(const MachOObjectFile *Obj,
 
     uint32_t EntryIdx = RelocAddress / EntrySize;
     uint32_t OffsetInEntry = RelocAddress - (uint64_t)EntryIdx * EntrySize;
-    if (EntryIdx >= CompactUnwinds.size()) 
-    {
+    if (EntryIdx >= CompactUnwinds.size()) {
       outs() << "Invalid relocation in __compact_unwind section\n";
       return;
     }
