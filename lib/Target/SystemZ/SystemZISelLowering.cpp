@@ -3684,7 +3684,7 @@ static void getVPermMask(ShuffleVectorSDNode *VSN,
   EVT VT = VSN->getValueType(0);
   unsigned NumElements = VT.getVectorNumElements();
   unsigned BytesPerElement = VT.getVectorElementType().getStoreSize();
-  Bytes.resize(NumElements * BytesPerElement, -1);
+  Bytes.resize((size_t)NumElements * BytesPerElement, -1);
   for (unsigned I = 0; I < NumElements; ++I) {
     int Index = VSN->getMaskElt(I);
     if (Index >= 0)

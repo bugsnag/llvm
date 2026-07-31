@@ -327,7 +327,7 @@ int MinimizeCrashInput(const std::vector<std::string> &Args,
         CurrentFilePath = Flags.exact_artifact_path;
         WriteToFile(U, CurrentFilePath);
       }
-      Printf("CRASH_MIN: failed to minimize beyond %s (%d bytes), exiting\n",
+      Printf("CRASH_MIN: failed to minimize beyond %s (%zd bytes), exiting\n",
              CurrentFilePath.c_str(), U.size());
       return 0;
     }

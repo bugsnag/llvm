@@ -1214,7 +1214,7 @@ bool IFOrdering::operator() (const IFRecordWithRegSet &A,
   if (ZeroA != ZeroB)
     return ZeroA > ZeroB;
   // Compare SumA/SizeA with SumB/SizeB, lower is better.
-  uint64_t AvgA = SumA*SizeB, AvgB = SumB*SizeA;
+  uint64_t AvgA = (uint64_t)SumA * SizeB, AvgB = (uint64_t)SumB * SizeA;
   if (AvgA != AvgB)
     return AvgA < AvgB;
 
