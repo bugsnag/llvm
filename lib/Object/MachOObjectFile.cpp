@@ -84,7 +84,7 @@ getSectionPtr(const MachOObjectFile &O, MachOObjectFile::LoadCommandInfo L,
   unsigned SectionSize = Is64 ? sizeof(MachO::section_64) :
                                 sizeof(MachO::section);
 
-  uintptr_t SectionAddr = CommandAddr + SegmentLoadSize + Sec * SectionSize;
+  uintptr_t SectionAddr = CommandAddr + SegmentLoadSize + (uintptr_t)Sec * SectionSize;
   return reinterpret_cast<const char*>(SectionAddr);
 }
 
@@ -2315,7 +2315,7 @@ basic_symbol_iterator MachOObjectFile::getSymbolByIndex(unsigned Index) const {
     is64Bit() ? sizeof(MachO::nlist_64) : sizeof(MachO::nlist);
   DataRefImpl DRI;
   DRI.p = reinterpret_cast<uintptr_t>(getPtr(*this, Symtab.symoff));
-  DRI.p += Index * SymbolTableEntrySize;
+  DRI.p += (uintptr_t)Index * SymbolTableEntrySize;
   return basic_symbol_iterator(SymbolRef(DRI, this));
 }
 
